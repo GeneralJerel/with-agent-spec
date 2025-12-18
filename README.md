@@ -18,6 +18,8 @@ This is a starter template for building AI agents using Agent Spec and CopilotKi
 
 ## Getting Started
 
+Before installing, please clone the [AG-UI repository](https://github.com/ag-ui-protocol/ag-ui) into the same directory as this repo, `with-agent-spec`.
+
 1. Install dependencies using your preferred package manager:
 ```bash
 # Using pnpm (recommended)
@@ -38,6 +40,8 @@ bun install
 > ```bash
 > npm run install:agent
 > ```
+
+Note: this install both LangGraph and WayFlow runtimes for running your Agent Spec agents. The runtime can be selected when loading the agent in `main.py`, setting either `langgraph` or `wayflow`.
 
 2. (Optional) Set up your LLM environment variables:
 

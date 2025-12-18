@@ -11,4 +11,4 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-ag-ui-agent-spec = { path = "../../ag-ui/integrations/agent-spec/python" }
+ag-ui-agent-spec = { path = "../../ag-ui/integrations/agent-spec/python", editable=true }

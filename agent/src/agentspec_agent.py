@@ -71,7 +71,7 @@ setThemeColor_tool = ClientTool(
 )
 
 with_agentspec_agent = Agent(
-    name="Agent Spec Agent",
+    name="AgentSpecAgent",
     description="A starter Agent that can call tools.",
     system_prompt="You are a helpful assistant, named Specky, that has access to some tools.",
     llm_config=OpenAiCompatibleConfig(
