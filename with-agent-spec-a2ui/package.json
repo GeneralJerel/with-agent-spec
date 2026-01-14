@@ -1,0 +1,42 @@
+{
+  "name": "with-agent-spec-a2ui",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:ui\" \"npm run dev:agent\" --names ui,agent --prefix-colors blue,green --kill-others",
+    "dev:ui": "next dev --turbopack",
+    "dev:agent": "./scripts/run-agent.sh",
+    "dev:debug": "LOG_LEVEL=debug next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "install:agent": "./scripts/setup-agent.sh",
+    "postinstall": "npm run install:agent"
+  },
+  "dependencies": {
+    "@ag-ui/client": "^0.0.42",
+    "@a2ui/lit": "^0.8.1",
+    "@copilotkit/a2ui-renderer": "0.0.2",
+    "@copilotkit/react-ui": "1.50.1",
+    "@copilotkit/react-core": "~1.50.1",
+    "@copilotkit/runtime": "~1.50.1",
+    "hono": "^4.6.18",
+    "next": "^16.0.10",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "zod": "^3.25.75",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.13",
+    "@types/node": "^22.15.3",
+    "@types/react": "19.2.3",
+    "@types/react-dom": "19.2.3",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.34.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^4.1.13",
+    "typescript": "5.9.2"
+  }
+}
