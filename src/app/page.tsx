@@ -60,14 +60,14 @@ function Chat() {
     []
   );
 
-  return <CopilotChat className="flex-1 overflow-hidden" agentId="my_a2ui_agent" />;
+  return <CopilotChat className="flex-1 min-h-0 overflow-hidden" agentId="my_a2ui_agent" />;
 }
 
 export default function Page() {
   return (
     <CopilotKitProvider runtimeUrl="/api/copilotkit" showDevConsole="auto" renderActivityMessages={activityRenderers}>
       <div
-        className="a2ui-chat-container flex flex-col h-full overflow-hidden"
+        className="a2ui-chat-container flex h-full min-h-0 flex-col overflow-hidden"
       >
         <Chat />
       </div>
