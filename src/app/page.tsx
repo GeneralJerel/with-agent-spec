@@ -1,33 +1,35 @@
 "use client";
 
 import "@copilotkit/react-core/v2/styles.css";
-import { CopilotChat, CopilotKitProvider, useFrontendTool, ToolCallStatus } from "@copilotkit/react-core/v2";
+import {
+  CopilotChat,
+  CopilotKitProvider,
+  ToolCallStatus,
+  useFrontendTool,
+} from "@copilotkit/react-core/v2";
 import { createA2UIMessageRenderer } from "@copilotkit/a2ui-renderer";
 import { z } from "zod";
+
+import { withA2UIActivityMessage } from "@/components/a2ui-activity-wrapper";
 import { theme } from "./theme";
 
 // Disable static optimization for this page
 export const dynamic = "force-dynamic";
 
-const A2UIMessageRenderer = createA2UIMessageRenderer({ theme });
+const BaseA2UIMessageRenderer = createA2UIMessageRenderer({ theme });
+const A2UIMessageRenderer =
+  withA2UIActivityMessage(BaseA2UIMessageRenderer);
+
 const activityRenderers = [A2UIMessageRenderer];
 
-function A2UILoadingIndicator({
-  status,
-}: {
-  status: ToolCallStatus;
-}) {
+function A2UILoadingIndicator({ status }: { status: ToolCallStatus }) {
   if (status === ToolCallStatus.Complete) {
     return null;
   }
 
   return (
     <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-md text-gray-500 text-sm mb-3">
-      <svg
-        className="w-4 h-4 animate-spin"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
+      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
         <circle
           className="opacity-25"
           cx="12"
@@ -60,15 +62,22 @@ function Chat() {
     []
   );
 
-  return <CopilotChat className="flex-1 min-h-0 overflow-hidden" agentId="my_a2ui_agent" />;
+  return (
+    <CopilotChat
+      className="flex-1 min-h-0 overflow-hidden"
+      agentId="my_a2ui_agent"
+    />
+  );
 }
 
 export default function Page() {
   return (
-    <CopilotKitProvider runtimeUrl="/api/copilotkit" showDevConsole="auto" renderActivityMessages={activityRenderers}>
-      <div
-        className="a2ui-chat-container flex h-full min-h-0 flex-col overflow-hidden"
-      >
+    <CopilotKitProvider
+      runtimeUrl="/api/copilotkit"
+      showDevConsole="auto"
+      renderActivityMessages={activityRenderers}
+    >
+      <div className="a2ui-chat-container flex h-full min-h-0 flex-col overflow-hidden">
         <Chat />
       </div>
     </CopilotKitProvider>

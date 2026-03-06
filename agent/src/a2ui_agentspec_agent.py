@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import json
 
 import dotenv
 dotenv.load_dotenv()
@@ -74,7 +73,7 @@ Using the following Email Form component and example Email data update, please h
 Please refer to the instructions in the **## A2UI Protocol Instructions** above for how to generate valid send_a2ui_json_to_client tool calls with the valid a2ui_json structure.
 Please make sure to always generate valid JSON (double-quoted property names).
 Please follow the A2UI JSON SCHEMA to generate valid a2ui_json structure.
-Today's date: 2026-02-01. When the user asks a question without a specific date, assume they mean today.
+Today's date: 2026-02-02 (Monday). When the user asks a question without a specific date, assume they mean today.
 Note that when updating the schedule, you can add extra time slots if needed.
 IMPORTANT: when updating the schedule, please repeat all existing events, because your update will override any existing data!
 """
@@ -117,11 +116,17 @@ get_user_schedule_tool = ServerTool(
     description="Retrieves the user's schedule for today. No inputs needed.",
 )
 
+send_email_tool = ServerTool(
+    name="send_email",
+    description="Sends an email out. Accepts a single argument as the entire email, including the sender, recipiens, subject, body, etc.",
+    inputs=[StringProperty(title="payload")]
+)
+
 agent = Agent(
     name="a2ui_chat_agent",
     llm_config=agent_llm,
     system_prompt=A2UI_SYSTEM_PROMPT,
-    tools=[send_a2ui_json_to_client_tool, check_user_inbox_tool, get_user_schedule_tool]
+    tools=[send_a2ui_json_to_client_tool, check_user_inbox_tool, get_user_schedule_tool, send_email_tool]
 )
 
 a2ui_chat_json = AgentSpecSerializer().to_json(agent)
@@ -145,7 +150,11 @@ def user_schedule_tool(*args, **kwargs):
 def check_inbox_tool(*args, **kwargs):
     return "From: david.dave@company.org\nTo: joe.charlie@company.org\nSubject: Quick Sync\n\nHey, I need to loop you in with some colleagues for a meeting to set up a new project. When would you be available? Please reply asap"
 
+def send_email_tool_fn(*args, **kwargs):
+    return "Email sent successfully!"
+
 a2ui_demo_tool_registry = {
     "check_user_inbox": check_inbox_tool,
-    "get_user_schedule": user_schedule_tool 
+    "get_user_schedule": user_schedule_tool,
+    "send_email": send_email_tool_fn
 }

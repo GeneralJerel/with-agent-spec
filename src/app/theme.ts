@@ -192,7 +192,7 @@ export const theme: v0_8.Types.Theme = {
       "border-bw-0": true,
       "border-bs-s": true,
       "color-bgc-p30": true,
-      "color-c-n100": true,
+      "color-c-p100": true,
       "behavior-ho-70": true,
     },
     Card: { "border-br-9": true, "color-bgc-p100": true, "layout-p-4": true },
@@ -303,7 +303,6 @@ export const theme: v0_8.Types.Theme = {
       all: {
         "layout-w-100": true,
         "layout-g-2": true,
-        "color-c-p30": true,
       },
       h1: {
         "typography-f-sf": true,
