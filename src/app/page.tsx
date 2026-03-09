@@ -157,7 +157,7 @@ function CanvasContentRenderer({ content }: { content: CanvasContent }) {
   }
 }
 
-function Canvas({ content, onMaximize }: { content: CanvasContent; onMaximize: () => void }) {
+function Canvas({ content, onClose }: { content: CanvasContent; onClose: () => void }) {
   return (
     <div className="canvas-panel">
       <div className="canvas-header">
@@ -165,6 +165,12 @@ function Canvas({ content, onMaximize }: { content: CanvasContent; onMaximize: (
           {CARD_ICONS[content.type]}
           <span className="canvas-header-title">{CANVAS_TITLES[content.type]}</span>
         </div>
+        <button type="button" className="canvas-header-close" onClick={onClose} title="Close canvas">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 6L6 18" />
+            <path d="M6 6l12 12" />
+          </svg>
+        </button>
       </div>
       <div className="canvas-body">
         <CanvasContentRenderer content={content} />
@@ -439,28 +445,9 @@ export default function Page() {
     >
       <div className={`a2ui-chat-container flex h-full min-h-0 overflow-hidden ${isCanvasMode ? "layout-split" : "layout-chat"}`}>
         {isCanvasMode && canvas.content && (
-          <Canvas content={canvas.content} onMaximize={handleMaximize} />
+          <Canvas content={canvas.content} onClose={handleMaximize} />
         )}
         <div className={`chat-panel flex flex-col min-h-0 overflow-hidden ${isCanvasMode ? "chat-sidebar" : "flex-1"}`}>
-          {isCanvasMode && (
-            <div className="chat-sidebar-header">
-              <span className="chat-sidebar-title">Scheduling Assistant</span>
-              <button type="button" className="chat-sidebar-close" onClick={handleMaximize} title="Maximize chat">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 6L6 18" />
-                  <path d="M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          )}
-          {!isCanvasMode && canvas.content && (
-            <div className="canvas-restore-bar">
-              <button type="button" className="canvas-restore-btn" onClick={handleMinimize}>
-                {CARD_ICONS[canvas.content.type]}
-                Show {CANVAS_TITLES[canvas.content.type].toLowerCase()}
-              </button>
-            </div>
-          )}
           <Chat isCanvasMode={isCanvasMode} hasCanvasContent={canvas.content !== null} onCanvasUpdate={handleCanvasUpdate} onMaximize={handleMaximize} onMinimize={handleMinimize} />
         </div>
       </div>

@@ -163,6 +163,29 @@
   color: #374151;
 }
 
+.canvas-header-close {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  border-radius: 6px;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 120ms ease, background 120ms ease;
+}
+
+.canvas-header-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.canvas-header-close:active {
+  transform: translateY(1px);
+}
+
 .canvas-body {
   flex: 1;
   overflow-y: auto;
@@ -187,74 +210,17 @@
   border-left: none;
 }
 
-.chat-sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #fff;
+/* Ensure CopilotChat input doesn't overflow in sidebar */
+.chat-sidebar > * {
+  max-width: 100%;
 }
 
-.chat-sidebar-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #111827;
-}
-
-.chat-sidebar-close {
-  appearance: none;
-  border: none;
-  background: transparent;
-  color: #9ca3af;
-  border-radius: 6px;
-  padding: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 120ms ease, background 120ms ease;
-}
-
-.chat-sidebar-close:hover {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.chat-sidebar-close:active {
-  transform: translateY(1px);
-}
-
-/* "Show dashboard" restore bar in full chat mode */
-.canvas-restore-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 12px;
-  border-bottom: 1px solid #f3f4f6;
-  background: #fafafa;
-}
-
-.canvas-restore-btn {
-  appearance: none;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  color: #6b7280;
-  border-radius: 6px;
-  padding: 4px 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  transition: background 120ms ease, border-color 120ms ease;
-}
-
-.canvas-restore-btn:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  color: #374151;
+/* Fix input box warping: constrain the chat input area within the sidebar */
+.chat-sidebar [class*="overflow-y-scroll"],
+.chat-sidebar form,
+.chat-sidebar [class*="relative w-full"] {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 /* === Compact Tool Cards (chat sidebar when content is in canvas) === */
@@ -526,36 +492,11 @@
     color: #e5e7eb;
   }
 
-  .chat-sidebar-header {
-    border-bottom-color: rgba(255, 255, 255, 0.08);
-    background: rgba(0, 0, 0, 0.3);
-  }
-
-  .chat-sidebar-title {
-    color: #e5e7eb;
-  }
-
-  .chat-sidebar-close {
+  .canvas-header-close {
     color: #6b7280;
   }
 
-  .chat-sidebar-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #e5e7eb;
-  }
-
-  .canvas-restore-bar {
-    border-bottom-color: rgba(255, 255, 255, 0.08);
-    background: rgba(0, 0, 0, 0.2);
-  }
-
-  .canvas-restore-btn {
-    border-color: rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.06);
-    color: #9ca3af;
-  }
-
-  .canvas-restore-btn:hover {
+  .canvas-header-close:hover {
     background: rgba(255, 255, 255, 0.1);
     color: #e5e7eb;
   }
