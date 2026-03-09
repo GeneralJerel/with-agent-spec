@@ -80,7 +80,219 @@ Example email value: '{{"to":"david@company.org","subject":"Re: Quick Sync","bod
 
 DO NOT use send_a2ui_json_to_client for email compose. Always use render_email_compose.
 
+## Daily Brief Dashboard
+When the user asks for their daily brief, daily summary, or dashboard:
+1. First call get_daily_brief to retrieve the combined data.
+2. Then call render_daily_brief with root="root", plus components and data as JSON strings.
+
+### A2UI Component Rules
+Each component is {{"id":"<id>","component":{{<Type>:{{...}}}}}}. ONE key per component object.
+To give a component flex-grow, add "weight":<n> at the ITEM level (sibling of "id" and "component"), NOT inside type properties.
+
+Available component types:
+- Card: {{"child":"<child-id>"}}
+- Column: {{"children":{{"explicitList":["id1","id2",...]}}, "alignment":"start"|"center"|"end"|"stretch"}}
+- Row: {{"children":{{"explicitList":["id1","id2",...]}}, "alignment":"start"|"center"|"end", "distribution":"start"|"center"|"end"|"spaceBetween"|"spaceEvenly"}}
+- Text: {{"text":{{"path":"/<key>"}} or {{"literalString":"value"}}, "usageHint":"h1"|"h2"|"h3"|"h4"|"body"|"caption"}}
+- Icon: {{"name":{{"literalString":"calendarToday"|"mail"|"event"|"person"|"schedule"|"inbox"}}}}
+- Divider: {{}}
+- Modal: {{"entryPointChild":"<entry-id>","contentChild":"<content-id>"}} — click entry to open detail dialog
+
+### Data Binding
+- ALL dynamic values MUST use path binding: {{"path":"/<key>"}}
+- Only static labels use {{"literalString":"..."}}
+- Data object has flat keys matching the path bindings (without leading /)
+
+### Layout
+The dashboard uses 3 separate Card components inside a root Column:
+1. **Summary card**: title, date, stats row, executive summary paragraph
+2. **Schedule card**: section header + event rows (each wrapped in a Modal for detail view)
+3. **Inbox card**: section header + email rows (each wrapped in a Modal for detail view)
+
+### Typography
+- h2: dashboard title; h1: big metric numbers; h4: section headings
+- body: event titles, email subjects, executive summary, guest labels
+- caption: date, metric labels, timestamps, sender names (use *italic* wrapping)
+
+### Concrete Template
+Copy and populate dynamic values from get_daily_brief results.
+
+components:
+[
+  {{"id":"root","component":{{"Column":{{"children":{{"explicitList":["summary-card","schedule-card","inbox-card"]}}}}}}}},
+  {{"id":"summary-card","component":{{"Card":{{"child":"summary-col"}}}}}},
+  {{"id":"summary-col","component":{{"Column":{{"children":{{"explicitList":["title","subtitle","div1","metrics-row","div2","exec-summary"]}}}}}}}},
+  {{"id":"title","component":{{"Text":{{"text":{{"path":"/title"}},"usageHint":"h2"}}}}}},
+  {{"id":"subtitle","component":{{"Text":{{"text":{{"path":"/subtitle"}},"usageHint":"caption"}}}}}},
+  {{"id":"div1","component":{{"Divider":{{}}}}}},
+  {{"id":"metrics-row","component":{{"Row":{{"children":{{"explicitList":["m-meetings","m-unread","m-hours"]}},"distribution":"spaceEvenly"}}}}}},
+  {{"id":"m-meetings","component":{{"Column":{{"children":{{"explicitList":["m-meetings-v","m-meetings-l"]}},"alignment":"center"}}}}}},
+  {{"id":"m-meetings-v","component":{{"Text":{{"text":{{"path":"/meetingCount"}},"usageHint":"h1"}}}}}},
+  {{"id":"m-meetings-l","component":{{"Text":{{"text":{{"literalString":"*Meetings*"}},"usageHint":"caption"}}}}}},
+  {{"id":"m-unread","component":{{"Column":{{"children":{{"explicitList":["m-unread-v","m-unread-l"]}},"alignment":"center"}}}}}},
+  {{"id":"m-unread-v","component":{{"Text":{{"text":{{"path":"/unreadCount"}},"usageHint":"h1"}}}}}},
+  {{"id":"m-unread-l","component":{{"Text":{{"text":{{"literalString":"*Unread*"}},"usageHint":"caption"}}}}}},
+  {{"id":"m-hours","component":{{"Column":{{"children":{{"explicitList":["m-hours-v","m-hours-l"]}},"alignment":"center"}}}}}},
+  {{"id":"m-hours-v","component":{{"Text":{{"text":{{"path":"/availableHours"}},"usageHint":"h1"}}}}}},
+  {{"id":"m-hours-l","component":{{"Text":{{"text":{{"literalString":"*Hours Free*"}},"usageHint":"caption"}}}}}},
+  {{"id":"div2","component":{{"Divider":{{}}}}}},
+  {{"id":"exec-summary","component":{{"Text":{{"text":{{"path":"/execSummary"}},"usageHint":"body"}}}}}},
+  {{"id":"schedule-card","component":{{"Card":{{"child":"sched-col"}}}}}},
+  {{"id":"sched-col","component":{{"Column":{{"children":{{"explicitList":["sched-hdr","modal-e1","ed1","modal-e2","ed2","modal-e3","ed3","modal-e4","ed4","modal-e5"]}}}}}}}},
+  {{"id":"sched-hdr","component":{{"Row":{{"children":{{"explicitList":["sched-icon","sched-text"]}},"alignment":"center"}}}}}},
+  {{"id":"sched-icon","component":{{"Icon":{{"name":{{"literalString":"event"}}}}}}}},
+  {{"id":"sched-text","component":{{"Text":{{"text":{{"literalString":"Schedule"}},"usageHint":"h4"}}}}}},
+  {{"id":"modal-e1","component":{{"Modal":{{"entryPointChild":"e1-row","contentChild":"e1-detail"}}}}}},
+  {{"id":"e1-row","component":{{"Row":{{"children":{{"explicitList":["e1-time","e1-title","e1-gc"]}},"alignment":"center"}}}}}},
+  {{"id":"e1-time","component":{{"Text":{{"text":{{"path":"/event1Time"}},"usageHint":"caption"}}}}}},
+  {{"id":"e1-title","weight":1,"component":{{"Text":{{"text":{{"path":"/event1Title"}},"usageHint":"body"}}}}}},
+  {{"id":"e1-gc","component":{{"Row":{{"children":{{"explicitList":["e1-pi","e1-gn"]}},"alignment":"center"}}}}}},
+  {{"id":"e1-pi","component":{{"Icon":{{"name":{{"literalString":"person"}}}}}}}},
+  {{"id":"e1-gn","component":{{"Text":{{"text":{{"path":"/event1Guests"}},"usageHint":"caption"}}}}}},
+  {{"id":"e1-detail","component":{{"Column":{{"children":{{"explicitList":["e1-dt","e1-dtm","e1-dd","e1-dgl","e1-dgn"]}}}}}}}},
+  {{"id":"e1-dt","component":{{"Text":{{"text":{{"path":"/event1Title"}},"usageHint":"h4"}}}}}},
+  {{"id":"e1-dtm","component":{{"Text":{{"text":{{"path":"/event1TimeFull"}},"usageHint":"caption"}}}}}},
+  {{"id":"e1-dd","component":{{"Divider":{{}}}}}},
+  {{"id":"e1-dgl","component":{{"Text":{{"text":{{"path":"/event1GuestsLabel"}},"usageHint":"body"}}}}}},
+  {{"id":"e1-dgn","component":{{"Text":{{"text":{{"path":"/event1GuestNames"}},"usageHint":"caption"}}}}}},
+  {{"id":"ed1","component":{{"Divider":{{}}}}}},
+  {{"id":"modal-e2","component":{{"Modal":{{"entryPointChild":"e2-row","contentChild":"e2-detail"}}}}}},
+  {{"id":"e2-row","component":{{"Row":{{"children":{{"explicitList":["e2-time","e2-title","e2-gc"]}},"alignment":"center"}}}}}},
+  {{"id":"e2-time","component":{{"Text":{{"text":{{"path":"/event2Time"}},"usageHint":"caption"}}}}}},
+  {{"id":"e2-title","weight":1,"component":{{"Text":{{"text":{{"path":"/event2Title"}},"usageHint":"body"}}}}}},
+  {{"id":"e2-gc","component":{{"Row":{{"children":{{"explicitList":["e2-pi","e2-gn"]}},"alignment":"center"}}}}}},
+  {{"id":"e2-pi","component":{{"Icon":{{"name":{{"literalString":"person"}}}}}}}},
+  {{"id":"e2-gn","component":{{"Text":{{"text":{{"path":"/event2Guests"}},"usageHint":"caption"}}}}}},
+  {{"id":"e2-detail","component":{{"Column":{{"children":{{"explicitList":["e2-dt","e2-dtm","e2-dd","e2-dgl","e2-dgn"]}}}}}}}},
+  {{"id":"e2-dt","component":{{"Text":{{"text":{{"path":"/event2Title"}},"usageHint":"h4"}}}}}},
+  {{"id":"e2-dtm","component":{{"Text":{{"text":{{"path":"/event2TimeFull"}},"usageHint":"caption"}}}}}},
+  {{"id":"e2-dd","component":{{"Divider":{{}}}}}},
+  {{"id":"e2-dgl","component":{{"Text":{{"text":{{"path":"/event2GuestsLabel"}},"usageHint":"body"}}}}}},
+  {{"id":"e2-dgn","component":{{"Text":{{"text":{{"path":"/event2GuestNames"}},"usageHint":"caption"}}}}}},
+  {{"id":"ed2","component":{{"Divider":{{}}}}}},
+  {{"id":"modal-e3","component":{{"Modal":{{"entryPointChild":"e3-row","contentChild":"e3-detail"}}}}}},
+  {{"id":"e3-row","component":{{"Row":{{"children":{{"explicitList":["e3-time","e3-title","e3-gc"]}},"alignment":"center"}}}}}},
+  {{"id":"e3-time","component":{{"Text":{{"text":{{"path":"/event3Time"}},"usageHint":"caption"}}}}}},
+  {{"id":"e3-title","weight":1,"component":{{"Text":{{"text":{{"path":"/event3Title"}},"usageHint":"body"}}}}}},
+  {{"id":"e3-gc","component":{{"Row":{{"children":{{"explicitList":["e3-pi","e3-gn"]}},"alignment":"center"}}}}}},
+  {{"id":"e3-pi","component":{{"Icon":{{"name":{{"literalString":"person"}}}}}}}},
+  {{"id":"e3-gn","component":{{"Text":{{"text":{{"path":"/event3Guests"}},"usageHint":"caption"}}}}}},
+  {{"id":"e3-detail","component":{{"Column":{{"children":{{"explicitList":["e3-dt","e3-dtm","e3-dd","e3-dgl","e3-dgn"]}}}}}}}},
+  {{"id":"e3-dt","component":{{"Text":{{"text":{{"path":"/event3Title"}},"usageHint":"h4"}}}}}},
+  {{"id":"e3-dtm","component":{{"Text":{{"text":{{"path":"/event3TimeFull"}},"usageHint":"caption"}}}}}},
+  {{"id":"e3-dd","component":{{"Divider":{{}}}}}},
+  {{"id":"e3-dgl","component":{{"Text":{{"text":{{"path":"/event3GuestsLabel"}},"usageHint":"body"}}}}}},
+  {{"id":"e3-dgn","component":{{"Text":{{"text":{{"path":"/event3GuestNames"}},"usageHint":"caption"}}}}}},
+  {{"id":"ed3","component":{{"Divider":{{}}}}}},
+  {{"id":"modal-e4","component":{{"Modal":{{"entryPointChild":"e4-row","contentChild":"e4-detail"}}}}}},
+  {{"id":"e4-row","component":{{"Row":{{"children":{{"explicitList":["e4-time","e4-title","e4-gc"]}},"alignment":"center"}}}}}},
+  {{"id":"e4-time","component":{{"Text":{{"text":{{"path":"/event4Time"}},"usageHint":"caption"}}}}}},
+  {{"id":"e4-title","weight":1,"component":{{"Text":{{"text":{{"path":"/event4Title"}},"usageHint":"body"}}}}}},
+  {{"id":"e4-gc","component":{{"Row":{{"children":{{"explicitList":["e4-pi","e4-gn"]}},"alignment":"center"}}}}}},
+  {{"id":"e4-pi","component":{{"Icon":{{"name":{{"literalString":"person"}}}}}}}},
+  {{"id":"e4-gn","component":{{"Text":{{"text":{{"path":"/event4Guests"}},"usageHint":"caption"}}}}}},
+  {{"id":"e4-detail","component":{{"Column":{{"children":{{"explicitList":["e4-dt","e4-dtm","e4-dd","e4-dgl","e4-dgn"]}}}}}}}},
+  {{"id":"e4-dt","component":{{"Text":{{"text":{{"path":"/event4Title"}},"usageHint":"h4"}}}}}},
+  {{"id":"e4-dtm","component":{{"Text":{{"text":{{"path":"/event4TimeFull"}},"usageHint":"caption"}}}}}},
+  {{"id":"e4-dd","component":{{"Divider":{{}}}}}},
+  {{"id":"e4-dgl","component":{{"Text":{{"text":{{"path":"/event4GuestsLabel"}},"usageHint":"body"}}}}}},
+  {{"id":"e4-dgn","component":{{"Text":{{"text":{{"path":"/event4GuestNames"}},"usageHint":"caption"}}}}}},
+  {{"id":"ed4","component":{{"Divider":{{}}}}}},
+  {{"id":"modal-e5","component":{{"Modal":{{"entryPointChild":"e5-row","contentChild":"e5-detail"}}}}}},
+  {{"id":"e5-row","component":{{"Row":{{"children":{{"explicitList":["e5-time","e5-title","e5-gc"]}},"alignment":"center"}}}}}},
+  {{"id":"e5-time","component":{{"Text":{{"text":{{"path":"/event5Time"}},"usageHint":"caption"}}}}}},
+  {{"id":"e5-title","weight":1,"component":{{"Text":{{"text":{{"path":"/event5Title"}},"usageHint":"body"}}}}}},
+  {{"id":"e5-gc","component":{{"Row":{{"children":{{"explicitList":["e5-pi","e5-gn"]}},"alignment":"center"}}}}}},
+  {{"id":"e5-pi","component":{{"Icon":{{"name":{{"literalString":"person"}}}}}}}},
+  {{"id":"e5-gn","component":{{"Text":{{"text":{{"path":"/event5Guests"}},"usageHint":"caption"}}}}}},
+  {{"id":"e5-detail","component":{{"Column":{{"children":{{"explicitList":["e5-dt","e5-dtm","e5-dd","e5-dgl","e5-dgn"]}}}}}}}},
+  {{"id":"e5-dt","component":{{"Text":{{"text":{{"path":"/event5Title"}},"usageHint":"h4"}}}}}},
+  {{"id":"e5-dtm","component":{{"Text":{{"text":{{"path":"/event5TimeFull"}},"usageHint":"caption"}}}}}},
+  {{"id":"e5-dd","component":{{"Divider":{{}}}}}},
+  {{"id":"e5-dgl","component":{{"Text":{{"text":{{"path":"/event5GuestsLabel"}},"usageHint":"body"}}}}}},
+  {{"id":"e5-dgn","component":{{"Text":{{"text":{{"path":"/event5GuestNames"}},"usageHint":"caption"}}}}}},
+  {{"id":"inbox-card","component":{{"Card":{{"child":"inbox-col"}}}}}},
+  {{"id":"inbox-col","component":{{"Column":{{"children":{{"explicitList":["inbox-hdr","modal-em1","emd1","modal-em2"]}}}}}}}},
+  {{"id":"inbox-hdr","component":{{"Row":{{"children":{{"explicitList":["inbox-icon","inbox-text"]}},"alignment":"center"}}}}}},
+  {{"id":"inbox-icon","component":{{"Icon":{{"name":{{"literalString":"mail"}}}}}}}},
+  {{"id":"inbox-text","component":{{"Text":{{"text":{{"literalString":"Unread Messages"}},"usageHint":"h4"}}}}}},
+  {{"id":"modal-em1","component":{{"Modal":{{"entryPointChild":"em1-row","contentChild":"em1-detail"}}}}}},
+  {{"id":"em1-row","component":{{"Row":{{"children":{{"explicitList":["em1-icon","em1-col"]}},"alignment":"center"}}}}}},
+  {{"id":"em1-icon","component":{{"Icon":{{"name":{{"literalString":"mail"}}}}}}}},
+  {{"id":"em1-col","weight":1,"component":{{"Column":{{"children":{{"explicitList":["em1-subject","em1-from"]}}}}}}}},
+  {{"id":"em1-subject","component":{{"Text":{{"text":{{"path":"/email1Subject"}},"usageHint":"body"}}}}}},
+  {{"id":"em1-from","component":{{"Text":{{"text":{{"path":"/email1From"}},"usageHint":"caption"}}}}}},
+  {{"id":"em1-detail","component":{{"Column":{{"children":{{"explicitList":["em1-ds","em1-df","em1-dd","em1-db"]}}}}}}}},
+  {{"id":"em1-ds","component":{{"Text":{{"text":{{"path":"/email1Subject"}},"usageHint":"h4"}}}}}},
+  {{"id":"em1-df","component":{{"Text":{{"text":{{"path":"/email1From"}},"usageHint":"caption"}}}}}},
+  {{"id":"em1-dd","component":{{"Divider":{{}}}}}},
+  {{"id":"em1-db","component":{{"Text":{{"text":{{"path":"/email1Body"}},"usageHint":"body"}}}}}},
+  {{"id":"emd1","component":{{"Divider":{{}}}}}},
+  {{"id":"modal-em2","component":{{"Modal":{{"entryPointChild":"em2-row","contentChild":"em2-detail"}}}}}},
+  {{"id":"em2-row","component":{{"Row":{{"children":{{"explicitList":["em2-icon","em2-col"]}},"alignment":"center"}}}}}},
+  {{"id":"em2-icon","component":{{"Icon":{{"name":{{"literalString":"mail"}}}}}}}},
+  {{"id":"em2-col","weight":1,"component":{{"Column":{{"children":{{"explicitList":["em2-subject","em2-from"]}}}}}}}},
+  {{"id":"em2-subject","component":{{"Text":{{"text":{{"path":"/email2Subject"}},"usageHint":"body"}}}}}},
+  {{"id":"em2-from","component":{{"Text":{{"text":{{"path":"/email2From"}},"usageHint":"caption"}}}}}},
+  {{"id":"em2-detail","component":{{"Column":{{"children":{{"explicitList":["em2-ds","em2-df","em2-dd","em2-db"]}}}}}}}},
+  {{"id":"em2-ds","component":{{"Text":{{"text":{{"path":"/email2Subject"}},"usageHint":"h4"}}}}}},
+  {{"id":"em2-df","component":{{"Text":{{"text":{{"path":"/email2From"}},"usageHint":"caption"}}}}}},
+  {{"id":"em2-dd","component":{{"Divider":{{}}}}}},
+  {{"id":"em2-db","component":{{"Text":{{"text":{{"path":"/email2Body"}},"usageHint":"body"}}}}}}
+]
+
+data (populate from get_daily_brief results):
+{{
+  "title": "Daily Brief",
+  "subtitle": "*Monday, February 2, 2026*",
+  "meetingCount": "5",
+  "unreadCount": "2",
+  "availableHours": "4",
+  "execSummary": "You have 5 meetings today with 4 hours of free time between them. 2 unread messages need attention — David is requesting a quick sync to set up a new project, and Sarah shared the Q1 report for review before Thursday's meeting.",
+  "event1Time": "*8:00–9:00 AM*",
+  "event1Title": "Morning Meeting",
+  "event1Guests": "3",
+  "event1TimeFull": "*8:00 AM – 9:00 AM*",
+  "event1GuestsLabel": "3 guests",
+  "event1GuestNames": "*Sarah Chen, Mike Johnson, Jessica Park*",
+  "event2Time": "*9:00–10:00 AM*",
+  "event2Title": "Project Work",
+  "event2Guests": "2",
+  "event2TimeFull": "*9:00 AM – 10:00 AM*",
+  "event2GuestsLabel": "2 guests",
+  "event2GuestNames": "*David Dave, Sarah Chen*",
+  "event3Time": "*11:00–11:30 AM*",
+  "event3Title": "Client Call",
+  "event3Guests": "3",
+  "event3TimeFull": "*11:00 AM – 11:30 AM*",
+  "event3GuestsLabel": "3 guests",
+  "event3GuestNames": "*Alex Rivera, Sarah Chen, Nathan Ward*",
+  "event4Time": "*2:00–3:00 PM*",
+  "event4Title": "Team Sync",
+  "event4Guests": "5",
+  "event4TimeFull": "*2:00 PM – 3:00 PM*",
+  "event4GuestsLabel": "5 guests",
+  "event4GuestNames": "*Sarah Chen, Mike Johnson, Jessica Park, David Dave, Anmol Kapoor*",
+  "event5Time": "*4:00–4:30 PM*",
+  "event5Title": "Report Review",
+  "event5Guests": "1",
+  "event5TimeFull": "*4:00 PM – 4:30 PM*",
+  "event5GuestsLabel": "1 guest",
+  "event5GuestNames": "*Sarah Chen*",
+  "email1Subject": "Quick Sync",
+  "email1From": "*david.dave@company.org*",
+  "email1Body": "Hey, I need to loop you in with some colleagues for a meeting to set up a new project. When would you be available? Please reply asap",
+  "email2Subject": "Q1 Report Review",
+  "email2From": "*sarah.chen@company.org*",
+  "email2Body": "Hi team, I've attached the Q1 report for your review. Please take a look before our meeting on Thursday and come prepared with feedback."
+}}
+
+Adjust the number of event rows and email rows based on actual data. Add or remove Modal+row+detail groups and update the parent Column's explicitList.
+
+IMPORTANT: Use render_daily_brief, NOT send_a2ui_json_to_client for the daily brief.
+
 # Reminders
+- For daily brief: use get_daily_brief then render_daily_brief
 - For calendar: use get_user_schedule then render_calendar
 - For inbox: use check_user_inbox then render_inbox
 - For composing/replying to emails: use render_email_compose
@@ -154,6 +366,23 @@ send_email_tool = ServerTool(
     inputs=[StringProperty(title="payload")]
 )
 
+get_daily_brief_tool = ServerTool(
+    name="get_daily_brief",
+    description="Retrieves the user's daily brief including schedule summary, inbox highlights, and action items.",
+    outputs=[StringProperty(title="brief_data")],
+)
+
+render_daily_brief_tool = ClientTool(
+    name="render_daily_brief",
+    description="Renders a daily brief dashboard in the canvas workspace using A2UI components. "
+    "Pass the A2UI component definitions, data, and root component ID as JSON strings.",
+    inputs=[
+        StringProperty(title="components", description="JSON array string of A2UI ComponentInstance objects"),
+        StringProperty(title="data", description="JSON object string with data values for the dashboard"),
+        StringProperty(title="root", description="ID of the root component"),
+    ]
+)
+
 agent = Agent(
     name="a2ui_chat_agent",
     llm_config=agent_llm,
@@ -163,8 +392,10 @@ agent = Agent(
         render_calendar_tool,
         render_inbox_tool,
         render_email_compose_tool,
+        render_daily_brief_tool,
         check_user_inbox_tool,
         get_user_schedule_tool,
+        get_daily_brief_tool,
         send_email_tool,
     ]
 )
@@ -269,8 +500,56 @@ def send_email_tool_fn(*args, **kwargs):
     return "Email sent successfully!"
 
 
+def get_daily_brief_fn(*args, **kwargs):
+    meetings = [e for e in demo_schedule if not e["isAvailable"] and e["title"] != "Lunch Break"]
+    available_slots = [e for e in demo_schedule if e["isAvailable"]]
+    unread_emails = [e for e in demo_inbox if not e["isRead"]]
+
+    available_hours = 0
+    for slot in available_slots:
+        if slot["endTime"]:
+            sh, sm = map(int, slot["startTime"].split(":"))
+            eh, em = map(int, slot["endTime"].split(":"))
+            available_hours += (eh * 60 + em - sh * 60 - sm) / 60
+        else:
+            available_hours += 1
+
+    brief = {
+        "summary": {
+            "meetingCount": len(meetings),
+            "unreadCount": len(unread_emails),
+            "availableHours": int(available_hours),
+        },
+        "upcomingEvents": [
+            {
+                "title": e["title"],
+                "startTime": e["startTime"],
+                "endTime": e["endTime"],
+                "guestCount": len(e.get("guests", [])),
+                "guestNames": ", ".join(
+                    " ".join(p.capitalize() for p in g["email"].split("@")[0].split("."))
+                    for g in e.get("guests", [])
+                ),
+            }
+            for e in meetings
+        ],
+        "priorityEmails": [
+            {
+                "from": e["from"],
+                "subject": e["subject"],
+                "preview": e["body"][:80] + "..." if len(e["body"]) > 80 else e["body"],
+                "body": e["body"],
+                "date": e["date"],
+            }
+            for e in unread_emails
+        ],
+    }
+    return json.dumps(brief)
+
+
 a2ui_demo_tool_registry = {
     "check_user_inbox": check_inbox_tool,
     "get_user_schedule": user_schedule_tool,
+    "get_daily_brief": get_daily_brief_fn,
     "send_email": send_email_tool_fn,
 }

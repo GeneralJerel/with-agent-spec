@@ -180,6 +180,16 @@ export const theme: v0_8.Types.Theme = {
     Button: {
       "--n-35": "var(--n-100)",
     },
+    Card: {
+      "border-radius": "12px",
+      padding: "20px 24px",
+      "box-shadow":
+        "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+    },
+    Divider: {
+      margin: "8px 0",
+      opacity: "0.5",
+    },
   },
   components: {
     AudioPlayer: {},
@@ -273,9 +283,9 @@ export const theme: v0_8.Types.Theme = {
     Modal: {
       backdrop: { "color-bbgc-p60_20": true },
       element: {
-        "border-br-2": true,
+        "border-br-12": true,
         "color-bgc-p100": true,
-        "layout-p-4": true,
+        "layout-p-5": true,
         "border-bw-1": true,
         "border-bs-s": true,
         "color-bc-p80": true,

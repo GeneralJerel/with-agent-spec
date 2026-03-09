@@ -121,6 +121,376 @@
   display: none;
 }
 
+/* === Split Layout: Canvas + Chat Sidebar === */
+
+.layout-chat {
+  flex-direction: column;
+}
+
+.layout-split {
+  flex-direction: row;
+}
+
+/* Canvas panel (left side) */
+.canvas-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-right: 1px solid #e5e7eb;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+.canvas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.canvas-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.canvas-header-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.canvas-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.canvas-a2ui {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.canvas-content-centered {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Chat sidebar (right side in split mode) */
+.chat-sidebar {
+  width: 400px;
+  min-width: 320px;
+  max-width: 480px;
+  border-left: none;
+}
+
+.chat-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.chat-sidebar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.chat-sidebar-close {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  border-radius: 6px;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 120ms ease, background 120ms ease;
+}
+
+.chat-sidebar-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.chat-sidebar-close:active {
+  transform: translateY(1px);
+}
+
+/* "Show dashboard" restore bar in full chat mode */
+.canvas-restore-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #fafafa;
+}
+
+.canvas-restore-btn {
+  appearance: none;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  border-radius: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.canvas-restore-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+/* === Compact Tool Cards (chat sidebar when content is in canvas) === */
+
+.compact-tool-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  border-radius: 12px;
+  border: 1px solid #f3f4f6;
+  background: #fff;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.compact-tool-card:hover {
+  border-color: #e5e7eb;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.08),
+    0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.compact-tool-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.compact-tool-card-icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
+.compact-tool-card-icon--indigo {
+  color: #6366f1;
+}
+
+.compact-tool-card-icon--blue {
+  color: #3b82f6;
+}
+
+.compact-tool-card-icon--emerald {
+  color: #10b981;
+}
+
+.compact-tool-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.compact-tool-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compact-tool-card-summary {
+  font-size: 12px;
+  font-weight: 400;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compact-tool-card-btn {
+  appearance: none;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  flex: none;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.compact-tool-card-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.compact-tool-card-btn:active {
+  transform: translateY(1px);
+}
+
+/* === Canvas A2UI Polish === */
+/* A2UIViewer uses a hardcoded internal theme that doesn't include our custom
+   Card shadows, Divider styling, etc. These CSS overrides apply the polish
+   to the canvas-rendered A2UI surface. */
+
+/* Cards — shadow, rounded corners, proper padding (overrides viewer-theme inline padding: 32px) */
+.canvas-a2ui .a2ui-card > section {
+  border-radius: 12px !important;
+  padding: 20px 24px !important;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    0 8px 20px rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid #f0f0f0;
+}
+
+/* Modal trigger (entry point) — hover highlight to indicate clickability */
+.canvas-a2ui .a2ui-modal > section:first-child {
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background 150ms ease;
+  cursor: pointer;
+}
+
+.canvas-a2ui .a2ui-modal > section:first-child:hover {
+  background: #f3f4f6;
+}
+
+/* Modal dialog — polished popup with shadow and rounded corners */
+.canvas-a2ui .a2ui-modal dialog {
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-width: 480px;
+  width: 90%;
+}
+
+.canvas-a2ui .a2ui-modal dialog > section {
+  border-radius: 16px !important;
+  padding: 24px !important;
+  border: none !important;
+}
+
+.canvas-a2ui .a2ui-modal dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Modal close button */
+.canvas-a2ui .a2ui-modal dialog #controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.canvas-a2ui .a2ui-modal dialog #controls button {
+  appearance: none;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.canvas-a2ui .a2ui-modal dialog #controls button:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+/* Divider — subtler */
+.canvas-a2ui .a2ui-divider > hr {
+  margin: 8px 0 !important;
+  opacity: 0.4;
+  border-color: #e5e7eb;
+}
+
+/* Icon — ensure Material Symbols Outlined font renders */
+.canvas-a2ui .g-icon {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-size: 20px;
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+  -webkit-font-smoothing: antialiased;
+  color: #6b7280;
+}
+
+/* Row — ensure vertical centering of children */
+.canvas-a2ui .a2ui-row > section {
+  align-items: center;
+}
+
+/* Text — remove extra paragraph margins for clean layout */
+.canvas-a2ui .a2ui-text section p {
+  margin: 0;
+}
+
+/* Surface — small top padding for breathing room */
+.canvas-a2ui .a2ui-surface {
+  padding: 4px 0;
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 768px) {
+  .layout-split {
+    flex-direction: column;
+  }
+  .chat-sidebar {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    height: 50%;
+  }
+  .canvas-panel {
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+}
+
+/* === Dark mode === */
+
 @media (prefers-color-scheme: dark) {
   .a2ui-chat-container .a2ui-activity-message {
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -140,5 +510,121 @@
 
   .a2ui-chat-container .a2ui-activity-toggle:hover {
     background: rgba(255, 255, 255, 0.1);
+  }
+
+  .canvas-panel {
+    border-right-color: rgba(255, 255, 255, 0.1);
+    background: #111;
+  }
+
+  .canvas-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .canvas-header-title {
+    color: #e5e7eb;
+  }
+
+  .chat-sidebar-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .chat-sidebar-title {
+    color: #e5e7eb;
+  }
+
+  .chat-sidebar-close {
+    color: #6b7280;
+  }
+
+  .chat-sidebar-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+  }
+
+  .canvas-restore-bar {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .canvas-restore-btn {
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+    color: #9ca3af;
+  }
+
+  .canvas-restore-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+  }
+
+  .compact-tool-card {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .compact-tool-card:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  .compact-tool-card-title {
+    color: #e5e7eb;
+  }
+
+  .compact-tool-card-summary {
+    color: #6b7280;
+  }
+
+  .compact-tool-card-btn {
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+    color: #9ca3af;
+  }
+
+  .compact-tool-card-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+  }
+
+  /* Canvas A2UI dark mode */
+  .canvas-a2ui .a2ui-card > section {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .canvas-a2ui .a2ui-modal > section:first-child:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .canvas-a2ui .a2ui-modal dialog {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  .canvas-a2ui .a2ui-modal dialog > section {
+    background: #1f2937 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .canvas-a2ui .a2ui-modal dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+  }
+
+  .canvas-a2ui .a2ui-modal dialog #controls button {
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+    color: #9ca3af;
+  }
+
+  .canvas-a2ui .a2ui-divider > hr {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .canvas-a2ui .g-icon {
+    color: #9ca3af;
   }
 }
