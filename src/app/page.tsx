@@ -12,6 +12,10 @@ import { z } from "zod";
 
 import { withA2UIActivityMessage } from "@/components/a2ui-activity-wrapper";
 import { theme } from "./theme";
+import { CalendarView, CalendarLoadingState } from "@/components/calendar-view";
+import type { CalendarEvent } from "@/components/calendar-view";
+import { InboxView, InboxLoadingState } from "@/components/inbox-view";
+import type { Email } from "@/components/inbox-view";
 
 // Disable static optimization for this page
 export const dynamic = "force-dynamic";
@@ -58,6 +62,62 @@ function Chat() {
         a2ui_json: z.string(),
       }) as any,
       render: ({ status }) => <A2UILoadingIndicator status={status} />,
+    },
+    []
+  );
+
+  useFrontendTool(
+    {
+      name: "render_calendar",
+      description: "Renders a rich calendar day-view with the user's schedule",
+      parameters: z.object({
+        date: z.string().describe("The date, e.g. '2026-02-02'"),
+        dayName: z.string().describe("Day of the week, e.g. 'Monday'"),
+        events: z.string().describe("JSON array of event objects with startTime, endTime, title, isAvailable"),
+      }) as any,
+      render: ({ status, args }: { status: ToolCallStatus; args?: { date: string; dayName: string; events: string } }) => {
+        if (status !== ToolCallStatus.Complete || !args) {
+          return <CalendarLoadingState />;
+        }
+        let events: CalendarEvent[] = [];
+        try {
+          events = JSON.parse(args.events);
+        } catch {
+          events = [];
+        }
+        return <CalendarView date={args.date} dayName={args.dayName} events={events} />;
+      },
+    },
+    []
+  );
+
+  useFrontendTool(
+    {
+      name: "render_inbox",
+      description: "Renders a Gmail-style inbox view with email messages",
+      parameters: z.object({
+        emails: z.string().describe("JSON array of email objects with from, subject, body, date fields"),
+      }) as any,
+      render: ({ status, args }: { status: ToolCallStatus; args?: { emails: string } }) => {
+        if (status !== ToolCallStatus.Complete || !args) {
+          return <InboxLoadingState />;
+        }
+        let emails: Email[] = [];
+        try {
+          const parsed = JSON.parse(args.emails);
+          emails = parsed.map((e: { from: string; subject: string; body?: string; date?: string; isRead?: boolean }, i: number) => ({
+            id: String(i),
+            from: e.from,
+            subject: e.subject,
+            preview: e.body?.substring(0, 100) || "",
+            date: e.date || "Today",
+            isRead: e.isRead ?? false,
+          }));
+        } catch {
+          emails = [];
+        }
+        return <InboxView emails={emails} />;
+      },
     },
     []
   );
