@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 export interface CalendarEvent {
   startTime: string;
   endTime: string;
@@ -11,120 +15,124 @@ interface CalendarViewProps {
   events: CalendarEvent[];
 }
 
-function parseHour(time: string): number {
-  const [h, m] = time.split(":").map(Number);
-  return h + (m || 0) / 60;
+function formatTime(t: string): string {
+  const [h, m] = t.split(":").map(Number);
+  const suffix = h >= 12 ? "PM" : "AM";
+  const display = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return m ? `${display}:${String(m).padStart(2, "0")} ${suffix}` : `${display} ${suffix}`;
 }
 
-function formatHour(hour: number): string {
-  const h = Math.floor(hour);
+function formatTimeShort(t: string): string {
+  const [h] = t.split(":").map(Number);
   const suffix = h >= 12 ? "PM" : "AM";
   const display = h === 0 ? 12 : h > 12 ? h - 12 : h;
   return `${display} ${suffix}`;
 }
 
-function formatTimeRange(start: string, end: string): string {
-  const format = (t: string) => {
-    const [h, m] = t.split(":").map(Number);
-    const suffix = h >= 12 ? "PM" : "AM";
-    const display = h === 0 ? 12 : h > 12 ? h - 12 : h;
-    return m ? `${display}:${String(m).padStart(2, "0")} ${suffix}` : `${display} ${suffix}`;
-  };
-  if (!end) return format(start);
-  return `${format(start)} – ${format(end)}`;
+function getDuration(start: string, end: string): string {
+  if (!end) return "";
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  const mins = (eh * 60 + (em || 0)) - (sh * 60 + (sm || 0));
+  if (mins >= 60) return `${mins / 60}h`;
+  return `${mins}m`;
 }
 
-const HOUR_HEIGHT = 60;
-const START_HOUR = 8;
-const END_HOUR = 18;
+function formatDateBadge(date: string, dayName: string): string {
+  try {
+    const d = new Date(date + "T00:00:00");
+    const month = d.toLocaleDateString("en-US", { month: "short" });
+    const day = d.getDate();
+    return `${dayName.slice(0, 3)}, ${month} ${day}`;
+  } catch {
+    return date;
+  }
+}
 
 export function CalendarView({ date, dayName, events }: CalendarViewProps) {
-  const hours = Array.from({ length: END_HOUR - START_HOUR }, (_, i) => START_HOUR + i);
-
-  const now = new Date();
-  const currentHour = now.getHours() + now.getMinutes() / 60;
-  const showCurrentTime = currentHour >= START_HOUR && currentHour < END_HOUR;
-
-  const formatted = (() => {
-    try {
-      const d = new Date(date + "T00:00:00");
-      return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-    } catch {
-      return date;
-    }
-  })();
+  const [selected, setSelected] = useState<number | null>(null);
+  const bookedCount = events.filter((e) => !e.isAvailable).length;
 
   return (
     <div className="max-w-md w-full rounded-xl shadow-lg bg-white overflow-hidden my-3">
       {/* Header */}
-      <div className="bg-indigo-600 px-5 py-4 text-white">
-        <p className="text-indigo-200 text-sm font-medium uppercase tracking-wide">{dayName}</p>
-        <p className="text-xl font-bold mt-0.5">{formatted}</p>
+      <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+          </svg>
+          <h2 className="text-base font-semibold text-gray-900">Schedule</h2>
+        </div>
+        <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+          {formatDateBadge(date, dayName)} · {bookedCount} event{bookedCount !== 1 ? "s" : ""}
+        </span>
       </div>
 
-      {/* Time grid */}
-      <div className="overflow-y-auto max-h-[480px] relative">
-        <div className="relative" style={{ height: (END_HOUR - START_HOUR) * HOUR_HEIGHT }}>
-          {/* Hour lines */}
-          {hours.map((hour) => (
-            <div
-              key={hour}
-              className="absolute w-full flex items-start"
-              style={{ top: (hour - START_HOUR) * HOUR_HEIGHT }}
-            >
-              <div className="w-16 shrink-0 pr-2 text-right text-xs text-gray-400 -mt-2">
-                {formatHour(hour)}
-              </div>
-              <div className="flex-1 border-t border-gray-100" />
-            </div>
-          ))}
+      {/* Event list */}
+      <div className="divide-y divide-gray-50">
+        {events.map((event, i) => {
+          const isExpanded = selected === i;
+          const isBooked = !event.isAvailable;
 
-          {/* Events */}
-          {events.map((event, i) => {
-            const start = parseHour(event.startTime);
-            const end = event.endTime ? parseHour(event.endTime) : start + 0.5;
-            const top = (start - START_HOUR) * HOUR_HEIGHT;
-            const height = Math.max((end - start) * HOUR_HEIGHT - 2, 24);
-
-            if (event.isAvailable) {
-              return (
-                <div
-                  key={i}
-                  className="absolute left-16 right-3 rounded-lg border border-dashed border-green-300 bg-green-50 px-3 py-1.5 text-green-700 text-xs flex items-center"
-                  style={{ top, height }}
-                >
-                  Available
-                </div>
-              );
-            }
-
-            return (
+          return (
+            <div key={i}>
               <div
-                key={i}
-                className="absolute left-16 right-3 rounded-lg bg-indigo-500 text-white px-3 py-1.5 shadow-sm overflow-hidden"
-                style={{ top, height }}
+                className={`flex items-center gap-3 px-5 py-3 transition-colors ${
+                  isBooked ? "hover:bg-gray-50 cursor-pointer" : ""
+                } ${isExpanded ? "bg-gray-50" : ""}`}
+                onClick={() => {
+                  if (isBooked) setSelected(isExpanded ? null : i);
+                }}
               >
-                <p className="font-semibold text-sm leading-tight truncate">{event.title}</p>
-                {height > 30 && (
-                  <p className="text-indigo-200 text-xs mt-0.5">
-                    {formatTimeRange(event.startTime, event.endTime)}
-                  </p>
+                {/* Time */}
+                <div className="w-20 shrink-0 text-xs text-gray-400 text-right">
+                  {formatTimeShort(event.startTime)}
+                  {event.endTime && (
+                    <>
+                      <span className="mx-0.5">–</span>
+                      {formatTimeShort(event.endTime)}
+                    </>
+                  )}
+                </div>
+
+                {/* Dot */}
+                <div
+                  className={`w-2 h-2 rounded-full shrink-0 ${
+                    isBooked ? "bg-indigo-500" : "bg-gray-200"
+                  }`}
+                />
+
+                {/* Title */}
+                <p
+                  className={`flex-1 text-sm truncate ${
+                    isBooked ? "text-gray-900 font-medium" : "text-gray-400"
+                  }`}
+                >
+                  {event.title}
+                </p>
+
+                {/* Duration badge */}
+                {isBooked && event.endTime && (
+                  <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
+                    {getDuration(event.startTime, event.endTime)}
+                  </span>
                 )}
               </div>
-            );
-          })}
 
-          {/* Current time indicator */}
-          {showCurrentTime && (
-            <div
-              className="absolute left-14 right-0 flex items-center z-10"
-              style={{ top: (currentHour - START_HOUR) * HOUR_HEIGHT }}
-            >
-              <div className="w-2.5 h-2.5 rounded-full bg-red-500 -ml-1.5" />
-              <div className="flex-1 h-0.5 bg-red-500" />
+              {/* Expanded detail */}
+              {isExpanded && isBooked && (
+                <div className="px-5 pb-3 pt-0 ml-[calc(5rem+1.25rem)] border-l-2 border-indigo-200">
+                  <p className="text-sm font-semibold text-gray-900">{event.title}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formatTime(event.startTime)}
+                    {event.endTime && ` – ${formatTime(event.endTime)}`}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">No additional details</p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -133,15 +141,16 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
 export function CalendarLoadingState() {
   return (
     <div className="max-w-md w-full rounded-xl shadow-lg bg-white overflow-hidden my-3 animate-pulse">
-      <div className="bg-indigo-600 px-5 py-4">
-        <div className="h-3 w-20 bg-indigo-400 rounded mb-2" />
-        <div className="h-5 w-40 bg-indigo-400 rounded" />
+      <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
+        <div className="w-5 h-5 bg-gray-200 rounded" />
+        <div className="h-4 w-20 bg-gray-200 rounded" />
       </div>
-      <div className="p-4 space-y-3">
-        {Array.from({ length: 5 }, (_, i) => (
-          <div key={i} className="flex items-center gap-3">
-            <div className="w-14 h-3 bg-gray-200 rounded" />
-            <div className="flex-1 h-10 bg-gray-100 rounded-lg" />
+      <div className="divide-y divide-gray-50">
+        {Array.from({ length: 6 }, (_, i) => (
+          <div key={i} className="flex items-center gap-3 px-5 py-3">
+            <div className="w-20 h-3 bg-gray-100 rounded shrink-0" />
+            <div className="w-2 h-2 rounded-full bg-gray-200 shrink-0" />
+            <div className="flex-1 h-3 bg-gray-100 rounded" />
           </div>
         ))}
       </div>

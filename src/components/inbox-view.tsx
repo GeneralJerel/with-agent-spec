@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 export interface Email {
   id: string;
   from: string;
@@ -44,6 +48,8 @@ function getSenderName(from: string): string {
 }
 
 export function InboxView({ emails }: InboxViewProps) {
+  const [selected, setSelected] = useState<string | null>(null);
+
   return (
     <div className="max-w-md w-full rounded-xl shadow-lg bg-white overflow-hidden my-3">
       {/* Header */}
@@ -61,38 +67,61 @@ export function InboxView({ emails }: InboxViewProps) {
 
       {/* Email list */}
       <div className="divide-y divide-gray-50">
-        {emails.map((email) => (
-          <div
-            key={email.id}
-            className="flex items-start gap-3 px-5 py-3 hover:bg-gray-50 transition-colors cursor-pointer relative"
-          >
-            {/* Unread indicator */}
-            {!email.isRead && (
-              <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500" />
-            )}
+        {emails.map((email) => {
+          const isExpanded = selected === email.id;
 
-            {/* Avatar */}
-            <div
-              className={`w-9 h-9 rounded-full ${getAvatarColor(email.from)} flex items-center justify-center text-white text-sm font-semibold shrink-0 mt-0.5`}
-            >
-              {getInitial(email.from)}
-            </div>
+          return (
+            <div key={email.id}>
+              <div
+                className={`flex items-start gap-3 px-5 py-3 hover:bg-gray-50 transition-colors cursor-pointer relative ${
+                  isExpanded ? "bg-gray-50" : ""
+                }`}
+                onClick={() => setSelected(isExpanded ? null : email.id)}
+              >
+                {/* Unread indicator */}
+                {!email.isRead && (
+                  <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500" />
+                )}
 
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-baseline justify-between gap-2">
-                <p className={`text-sm truncate ${email.isRead ? "text-gray-600" : "text-gray-900 font-semibold"}`}>
-                  {getSenderName(email.from)}
-                </p>
-                <span className="text-xs text-gray-400 shrink-0">{email.date}</span>
+                {/* Avatar */}
+                <div
+                  className={`w-9 h-9 rounded-full ${getAvatarColor(email.from)} flex items-center justify-center text-white text-sm font-semibold shrink-0 mt-0.5`}
+                >
+                  {getInitial(email.from)}
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <p className={`text-sm truncate ${email.isRead ? "text-gray-600" : "text-gray-900 font-semibold"}`}>
+                      {getSenderName(email.from)}
+                    </p>
+                    <span className="text-xs text-gray-400 shrink-0">{email.date}</span>
+                  </div>
+                  <p className={`text-sm truncate ${email.isRead ? "text-gray-500" : "text-gray-800 font-medium"}`}>
+                    {email.subject}
+                  </p>
+                  {!isExpanded && (
+                    <p className="text-xs text-gray-400 truncate mt-0.5">{email.preview}</p>
+                  )}
+                </div>
               </div>
-              <p className={`text-sm truncate ${email.isRead ? "text-gray-500" : "text-gray-800 font-medium"}`}>
-                {email.subject}
-              </p>
-              <p className="text-xs text-gray-400 truncate mt-0.5">{email.preview}</p>
+
+              {/* Expanded preview */}
+              {isExpanded && (
+                <div className="px-5 pb-4 pt-0 bg-gray-50">
+                  <div className="ml-12 border-l-2 border-gray-200 pl-3">
+                    <p className="text-xs text-gray-400">{email.from}</p>
+                    <p className="text-sm font-semibold text-gray-900 mt-1">{email.subject}</p>
+                    <p className="text-sm text-gray-600 mt-2 leading-relaxed whitespace-pre-wrap">
+                      {email.preview}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
