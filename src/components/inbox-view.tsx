@@ -7,6 +7,7 @@ export interface Email {
   from: string;
   subject: string;
   preview: string;
+  body: string;
   date: string;
   isRead: boolean;
 }
@@ -49,9 +50,10 @@ function getSenderName(from: string): string {
 
 export function InboxView({ emails }: InboxViewProps) {
   const [selected, setSelected] = useState<string | null>(null);
+  const selectedEmail = emails.find((e) => e.id === selected);
 
   return (
-    <div className="max-w-md w-full rounded-xl shadow-lg bg-white overflow-hidden my-3">
+    <div className="max-w-2xl w-full rounded-xl shadow-lg bg-white overflow-hidden my-3">
       {/* Header */}
       <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -65,27 +67,29 @@ export function InboxView({ emails }: InboxViewProps) {
         </span>
       </div>
 
-      {/* Email list */}
-      <div className="divide-y divide-gray-50">
-        {emails.map((email) => {
-          const isExpanded = selected === email.id;
+      {/* Split layout: list + detail panel */}
+      <div className="flex min-h-[320px]">
+        {/* Email list */}
+        <div className={`divide-y divide-gray-50 overflow-y-auto ${selectedEmail ? "w-1/2 border-r border-gray-100" : "w-full"}`}>
+          {emails.map((email) => {
+            const isActive = selected === email.id;
 
-          return (
-            <div key={email.id}>
+            return (
               <div
-                className={`flex items-start gap-3 px-5 py-3 hover:bg-gray-50 transition-colors cursor-pointer relative ${
-                  isExpanded ? "bg-gray-50" : ""
+                key={email.id}
+                className={`flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer relative ${
+                  isActive ? "bg-blue-50" : ""
                 }`}
-                onClick={() => setSelected(isExpanded ? null : email.id)}
+                onClick={() => setSelected(isActive ? null : email.id)}
               >
                 {/* Unread indicator */}
                 {!email.isRead && (
-                  <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500" />
                 )}
 
                 {/* Avatar */}
                 <div
-                  className={`w-9 h-9 rounded-full ${getAvatarColor(email.from)} flex items-center justify-center text-white text-sm font-semibold shrink-0 mt-0.5`}
+                  className={`w-8 h-8 rounded-full ${getAvatarColor(email.from)} flex items-center justify-center text-white text-xs font-semibold shrink-0 mt-0.5`}
                 >
                   {getInitial(email.from)}
                 </div>
@@ -96,32 +100,53 @@ export function InboxView({ emails }: InboxViewProps) {
                     <p className={`text-sm truncate ${email.isRead ? "text-gray-600" : "text-gray-900 font-semibold"}`}>
                       {getSenderName(email.from)}
                     </p>
-                    <span className="text-xs text-gray-400 shrink-0">{email.date}</span>
+                    <span className="text-[11px] text-gray-400 shrink-0">{email.date}</span>
                   </div>
                   <p className={`text-sm truncate ${email.isRead ? "text-gray-500" : "text-gray-800 font-medium"}`}>
                     {email.subject}
                   </p>
-                  {!isExpanded && (
-                    <p className="text-xs text-gray-400 truncate mt-0.5">{email.preview}</p>
-                  )}
+                  <p className="text-xs text-gray-400 truncate mt-0.5">{email.preview}</p>
                 </div>
               </div>
+            );
+          })}
+        </div>
 
-              {/* Expanded preview */}
-              {isExpanded && (
-                <div className="px-5 pb-4 pt-0 bg-gray-50">
-                  <div className="ml-12 border-l-2 border-gray-200 pl-3">
-                    <p className="text-xs text-gray-400">{email.from}</p>
-                    <p className="text-sm font-semibold text-gray-900 mt-1">{email.subject}</p>
-                    <p className="text-sm text-gray-600 mt-2 leading-relaxed whitespace-pre-wrap">
-                      {email.preview}
-                    </p>
-                  </div>
-                </div>
-              )}
+        {/* Detail panel */}
+        {selectedEmail && (
+          <div className="w-1/2 p-5 overflow-y-auto flex flex-col">
+            <div className="flex items-start gap-3 mb-4">
+              <div
+                className={`w-10 h-10 rounded-full ${getAvatarColor(selectedEmail.from)} flex items-center justify-center text-white text-sm font-semibold shrink-0`}
+              >
+                {getInitial(selectedEmail.from)}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900">{getSenderName(selectedEmail.from)}</p>
+                <p className="text-xs text-gray-400">{selectedEmail.from}</p>
+              </div>
+              <span className="text-xs text-gray-400 ml-auto shrink-0">{selectedEmail.date}</span>
             </div>
-          );
-        })}
+            <h3 className="text-base font-semibold text-gray-900 mb-3">{selectedEmail.subject}</h3>
+            <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap flex-1">{selectedEmail.body}</p>
+
+            {/* Reply / Forward buttons */}
+            <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-100">
+              <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                </svg>
+                Reply
+              </button>
+              <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3" />
+                </svg>
+                Forward
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -129,7 +154,7 @@ export function InboxView({ emails }: InboxViewProps) {
 
 export function InboxLoadingState() {
   return (
-    <div className="max-w-md w-full rounded-xl shadow-lg bg-white overflow-hidden my-3 animate-pulse">
+    <div className="max-w-2xl w-full rounded-xl shadow-lg bg-white overflow-hidden my-3 animate-pulse">
       <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
         <div className="w-5 h-5 bg-gray-200 rounded" />
         <div className="h-4 w-16 bg-gray-200 rounded" />

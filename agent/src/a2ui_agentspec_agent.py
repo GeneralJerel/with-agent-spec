@@ -47,8 +47,9 @@ When the user asks to see their schedule or calendar:
      - "endTime": end time like "09:00" (or "" if open-ended)
      - "title": the event name
      - "isAvailable": true if the slot is available, false otherwise
+     - "guests": (optional) array of guest objects with "email" and "status" ("accepted", "declined", "maybe", "pending")
 
-   Example events value: '[{{"startTime":"08:00","endTime":"09:00","title":"Morning Meeting","isAvailable":false}},{{"startTime":"09:00","endTime":"10:00","title":"Available","isAvailable":true}}]'
+   Example events value: '[{{"startTime":"08:00","endTime":"09:00","title":"Morning Meeting","isAvailable":false,"guests":[{{"email":"sarah@co.org","status":"accepted"}}]}},{{"startTime":"09:00","endTime":"10:00","title":"Available","isAvailable":true}}]'
 
 3. DO NOT use send_a2ui_json_to_client for calendar display. Always use render_calendar.
 4. When updating the schedule (adding/removing events), call render_calendar again with the FULL updated event list.
@@ -164,15 +165,49 @@ agent = Agent(
 a2ui_chat_json = AgentSpecSerializer().to_json(agent)
 
 demo_schedule = [
-    {"startTime": "08:00", "endTime": "09:00", "title": "Morning Meeting", "isAvailable": False},
-    {"startTime": "09:00", "endTime": "10:00", "title": "Project Work", "isAvailable": False},
+    {
+        "startTime": "08:00", "endTime": "09:00", "title": "Morning Meeting", "isAvailable": False,
+        "guests": [
+            {"email": "sarah.chen@company.org", "status": "accepted"},
+            {"email": "mike.johnson@company.org", "status": "accepted"},
+            {"email": "jessica.park@company.org", "status": "maybe"},
+        ],
+    },
+    {
+        "startTime": "09:00", "endTime": "10:00", "title": "Project Work", "isAvailable": False,
+        "guests": [
+            {"email": "david.dave@company.org", "status": "accepted"},
+            {"email": "sarah.chen@company.org", "status": "accepted"},
+        ],
+    },
     {"startTime": "10:00", "endTime": "11:00", "title": "Available", "isAvailable": True},
-    {"startTime": "11:00", "endTime": "11:30", "title": "Client Call", "isAvailable": False},
+    {
+        "startTime": "11:00", "endTime": "11:30", "title": "Client Call", "isAvailable": False,
+        "guests": [
+            {"email": "alex.rivera@client.com", "status": "accepted"},
+            {"email": "sarah.chen@company.org", "status": "declined"},
+            {"email": "nathan.ward@company.org", "status": "pending"},
+        ],
+    },
     {"startTime": "12:00", "endTime": "13:00", "title": "Lunch Break", "isAvailable": False},
     {"startTime": "13:00", "endTime": "14:00", "title": "Available", "isAvailable": True},
-    {"startTime": "14:00", "endTime": "15:00", "title": "Team Sync", "isAvailable": False},
+    {
+        "startTime": "14:00", "endTime": "15:00", "title": "Team Sync", "isAvailable": False,
+        "guests": [
+            {"email": "sarah.chen@company.org", "status": "accepted"},
+            {"email": "mike.johnson@company.org", "status": "accepted"},
+            {"email": "jessica.park@company.org", "status": "accepted"},
+            {"email": "david.dave@company.org", "status": "declined"},
+            {"email": "anmol.kapoor@company.org", "status": "pending"},
+        ],
+    },
     {"startTime": "15:00", "endTime": "16:00", "title": "Available", "isAvailable": True},
-    {"startTime": "16:00", "endTime": "16:30", "title": "Report Review", "isAvailable": False},
+    {
+        "startTime": "16:00", "endTime": "16:30", "title": "Report Review", "isAvailable": False,
+        "guests": [
+            {"email": "sarah.chen@company.org", "status": "accepted"},
+        ],
+    },
     {"startTime": "17:00", "endTime": "", "title": "Available", "isAvailable": True},
 ]
 
