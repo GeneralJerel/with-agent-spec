@@ -6,6 +6,7 @@ import {
   CopilotKitProvider,
   ToolCallStatus,
   useFrontendTool,
+  useConfigureSuggestions,
 } from "@copilotkit/react-core/v2";
 import { createA2UIMessageRenderer } from "@copilotkit/a2ui-renderer";
 import { z } from "zod";
@@ -16,6 +17,8 @@ import { CalendarView, CalendarLoadingState } from "@/components/calendar-view";
 import type { CalendarEvent } from "@/components/calendar-view";
 import { InboxView, InboxLoadingState } from "@/components/inbox-view";
 import type { Email } from "@/components/inbox-view";
+import { EmailComposeView, EmailComposeLoadingState } from "@/components/email-compose-view";
+import type { EmailComposeData } from "@/components/email-compose-view";
 
 // Disable static optimization for this page
 export const dynamic = "force-dynamic";
@@ -123,10 +126,47 @@ function Chat() {
     []
   );
 
+  useFrontendTool(
+    {
+      name: "render_email_compose",
+      description: "Renders a Gmail-style email compose view",
+      parameters: z.object({
+        email: z.string().describe("JSON object with to, subject, body, and optional from fields"),
+      }) as any,
+      render: ({ status, args }: { status: ToolCallStatus; args?: { email: string } }) => {
+        if (status !== ToolCallStatus.Complete || !args) {
+          return <EmailComposeLoadingState />;
+        }
+        let email: EmailComposeData = { to: "", subject: "", body: "" };
+        try {
+          email = JSON.parse(args.email);
+        } catch {
+          // keep defaults
+        }
+        return <EmailComposeView email={email} />;
+      },
+    },
+    []
+  );
+
+  useConfigureSuggestions({
+    suggestions: [
+      { title: "View my schedule", message: "Show me my schedule for today" },
+      { title: "Check inbox", message: "Check my inbox" },
+      { title: "Compose email", message: "Help me draft an email" },
+    ],
+    available: "before-first-message",
+  }, []);
+
   return (
     <CopilotChat
       className="flex-1 min-h-0 overflow-hidden"
       agentId="my_a2ui_agent"
+      labels={{
+        welcomeMessageText:
+          "Hi! I'm your scheduling assistant. I can help you check your calendar, read emails, and compose messages.",
+        chatInputPlaceholder: "Ask about your schedule, inbox, or compose an email...",
+      }}
     />
   );
 }

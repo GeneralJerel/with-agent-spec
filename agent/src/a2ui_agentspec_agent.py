@@ -70,24 +70,20 @@ When the user asks to check their inbox or emails:
 3. DO NOT use send_a2ui_json_to_client for inbox display. Always use render_inbox.
 
 ## Email Compose
-When composing, drafting, or sending an email, use the send_a2ui_json_to_client tool with the A2UI email form component below. This is the ONLY case where send_a2ui_json_to_client should be used.
+When composing, drafting, replying to, or sending an email, use the render_email_compose tool.
+Pass a JSON object STRING with these fields:
+  - "to": recipient email address
+  - "subject": email subject (use "Re: ..." for replies)
+  - "body": the full email body text (greeting, message, closing, and signature all combined as natural text)
 
-{A2UI_PROMPT}
+Example email value: '{{"to":"david@company.org","subject":"Re: Quick Sync","body":"Hi David,\\n\\nThanks for reaching out. I\\'m available today 10:00-11:00 or 13:00-14:00. Let me know what works.\\n\\nBest,\\n[Your Name]"}}'
 
-{A2UI_JSON_SCHEMA_PROMPT}
-
----BEGIN EMAIL FORM COMPONENT EXAMPLE---
-{a2ui_email_component_json}
----END EMAIL FORM COMPONENT EXAMPLE---
-
----BEGIN EMAIL FORM DATA UPDATE EXAMPLE---
-{a2ui_email_update_json}
----END EMAIL FORM DATA UPDATE EXAMPLE---
+DO NOT use send_a2ui_json_to_client for email compose. Always use render_email_compose.
 
 # Reminders
 - For calendar: use get_user_schedule then render_calendar
 - For inbox: use check_user_inbox then render_inbox
-- For composing emails: use send_a2ui_json_to_client with the email form A2UI component
+- For composing/replying to emails: use render_email_compose
 - Always generate valid JSON with double-quoted property names
 - When updating the schedule, include ALL events in the render_calendar call (existing + new)
 """
@@ -117,6 +113,16 @@ render_calendar_tool = ClientTool(
         StringProperty(title="date", description="The date, e.g. '2026-02-02'"),
         StringProperty(title="dayName", description="The day name, e.g. 'Monday'"),
         StringProperty(title="events", description="JSON array string of event objects with startTime, endTime, title, isAvailable fields"),
+    ]
+)
+
+render_email_compose_tool = ClientTool(
+    name="render_email_compose",
+    description="Renders a Gmail-style email compose view on the client. "
+    "Call this when the user wants to compose, draft, or reply to an email. "
+    "Pass a JSON object string with to, subject, and body fields.",
+    inputs=[
+        StringProperty(title="email", description="JSON object string with to, subject, body fields"),
     ]
 )
 
@@ -156,6 +162,7 @@ agent = Agent(
         send_a2ui_json_to_client_tool,
         render_calendar_tool,
         render_inbox_tool,
+        render_email_compose_tool,
         check_user_inbox_tool,
         get_user_schedule_tool,
         send_email_tool,

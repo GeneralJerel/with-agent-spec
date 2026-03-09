@@ -91,12 +91,7 @@ export function withA2UIActivityMessage(baseRenderer: any) {
         <div className="a2ui-activity-header">
           <div className="a2ui-activity-header-left">
             <span className="a2ui-activity-dot" aria-hidden="true" />
-            <span>Interactive UI</span>
-            {surfaceCount > 0 && (
-              <span className="a2ui-activity-meta">
-                {surfaceCount} surface{surfaceCount === 1 ? "" : "s"}
-              </span>
-            )}
+            <span>Email Draft</span>
           </div>
           <button
             type="button"
