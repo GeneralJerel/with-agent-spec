@@ -10,7 +10,7 @@ import {
 } from "@copilotkit/react-core/v2";
 import { createA2UIMessageRenderer, A2UIViewer } from "@copilotkit/a2ui-renderer";
 import { z } from "zod";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 import { withA2UIActivityMessage } from "@/components/a2ui-activity-wrapper";
 import { theme } from "./theme";
@@ -396,6 +396,35 @@ function Chat({
     available: "always",
   }, []);
 
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
+  useEffect(() => {
+    let rafId: number;
+    let prevAtBottom = true;
+
+    const tick = () => {
+      const container = document.querySelector(".copilot-custom-chat");
+      if (container) {
+        for (const el of container.querySelectorAll("*")) {
+          const htmlEl = el as HTMLElement;
+          if (htmlEl.scrollHeight > htmlEl.clientHeight + 10) {
+            const threshold = 40;
+            const atBottom = htmlEl.scrollHeight - htmlEl.scrollTop - htmlEl.clientHeight < threshold;
+            if (atBottom !== prevAtBottom) {
+              prevAtBottom = atBottom;
+              setIsAtBottom(atBottom);
+            }
+            break;
+          }
+        }
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, []);
+
   return (
     <CopilotChat
       className="flex-1 min-h-0 overflow-hidden"
@@ -414,7 +443,7 @@ function Chat({
       }) => (
         <div className="copilot-custom-chat">
           {scrollView}
-          <div className="chips-above-input">
+          <div className="chips-above-input" style={{ opacity: isAtBottom ? 1 : 0, pointerEvents: isAtBottom ? undefined : "none", transition: "opacity 0.2s ease" }}>
             {suggestionView}
           </div>
           {input}
