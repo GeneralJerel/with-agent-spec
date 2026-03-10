@@ -401,8 +401,7 @@ function Chat({
       className="flex-1 min-h-0 overflow-hidden"
       agentId="my_a2ui_agent"
       labels={{
-        welcomeMessageText:
-          "Hi! I'm your scheduling assistant. I can help you check your calendar, read emails, and compose messages.",
+        welcomeMessageText: "How can I help you today?",
         chatInputPlaceholder: isCanvasMode
           ? "Type a message..."
           : "Ask about your schedule, inbox, or compose an email...",
