@@ -42,6 +42,13 @@ export function withA2UIActivityMessage(baseRenderer: any) {
       return ids.size || 1;
     }, [operations]);
 
+    const activityLabel = useMemo(() => {
+      if (!Array.isArray(operations) || operations.length === 0) return "Interactive UI";
+      return surfaceCount > 1
+        ? `Interactive UI \u00B7 ${surfaceCount} surfaces`
+        : "Interactive UI";
+    }, [operations, surfaceCount]);
+
     const [collapsed, setCollapsed] = useState(false);
     const [flash, setFlash] = useState(false);
     const lastSignatureRef = useRef<string | null>(null);
@@ -91,12 +98,7 @@ export function withA2UIActivityMessage(baseRenderer: any) {
         <div className="a2ui-activity-header">
           <div className="a2ui-activity-header-left">
             <span className="a2ui-activity-dot" aria-hidden="true" />
-            <span>Interactive UI</span>
-            {surfaceCount > 0 && (
-              <span className="a2ui-activity-meta">
-                {surfaceCount} surface{surfaceCount === 1 ? "" : "s"}
-              </span>
-            )}
+            <span>{activityLabel}</span>
           </div>
           <button
             type="button"
