@@ -1,6 +1,8 @@
 # CopilotKit <> Agent Spec Starter
 
-This is a starter template for building AI agents using Agent Spec and CopilotKit. It provides a modern Next.js application wired to a FastAPI backend that serves an Agent Spec agent (LangGraph runtime by default) with a sample weather tool.
+This is a starter template for building AI agents using Agent Spec and CopilotKit. It provides a modern Next.js application wired to a FastAPI backend that serves an Agent Spec agent with A2UI-powered frontend tool rendering (calendar, inbox, email compose, daily brief dashboard).
+
+![Demo](demo.gif)
 
 ## Prerequisites
 
@@ -45,12 +47,12 @@ Note: this install both LangGraph and WayFlow runtimes for running your Agent Sp
 
 2. (Optional) Set up your LLM environment variables:
 
-Create a `.env` file inside the `agent` folder if you need to override defaults in the spec (`agent/src/specs/agent.json`):
+Create a `.env` file inside the `agent` folder if you need to override defaults:
 
 ```
 OPENAI_API_KEY=sk-...your-api-key...
 OPENAI_BASE_URL=https://api.your-provider.com/v1   # optional
-OPENAI_MODEL=gpt-4o                               # optional
+OPENAI_MODEL=gpt-5.2                               # optional
 ```
 
 The backend loads this `.env` automatically (via `python-dotenv`). You can also set:
@@ -83,6 +85,14 @@ pnpm run dev:ui
 pnpm run dev:agent
 ```
 
+## Project Structure
+
+- `src/app/page.tsx` - Main chat UI with frontend tool renderers (calendar, inbox, email, daily brief)
+- `src/components/` - React components for CalendarView, InboxView, EmailComposeView
+- `src/app/theme.ts` - A2UI theme configuration
+- `agent/src/a2ui_agentspec_agent.py` - Agent spec definition with system prompt, tools, and demo data
+- `agent/src/main.py` - FastAPI server entry point
+
 ## Available Scripts
 You can run these with any package manager:
 - `dev` - Starts both UI and agent servers in development mode
@@ -95,12 +105,6 @@ You can run these with any package manager:
 - `install:agent` - Installs Python dependencies for the agent
 
 ## Documentation
-
-- UI entry points: `with-agent-spec/src/app/page.tsx`, `with-agent-spec/src/app/layout.tsx`
-- Backend entry point: `with-agent-spec/agent/src/main.py`
-- Agent Spec definition: `with-agent-spec/agent/src/specs/agent.json`
-
-## 📚 Documentation
 
 - CopilotKit Documentation: https://docs.copilotkit.ai
 - Next.js Documentation: https://nextjs.org/docs
@@ -131,7 +135,7 @@ After copying, restart `pnpm dev`.
 
 ### Custom message key warning (temporary workaround)
 
-If you see React warnings about duplicate keys related to custom message rendering (keys like ``${message.id}-custom-before`` / ``${message.id}-custom-after``), we keep a temporary patch under:
+If you see React warnings about duplicate keys related to custom message rendering (keys like `${message.id}-custom-before` / `${message.id}-custom-after`), we keep a temporary patch under:
 
 - `src/app/patches/@copilotkitnext/react/dist/index.mjs`
 
