@@ -10,7 +10,7 @@ import {
 } from "@copilotkit/react-core/v2";
 import { createA2UIMessageRenderer, A2UIViewer } from "@copilotkit/a2ui-renderer";
 import { z } from "zod";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 
 import { withA2UIActivityMessage } from "@/components/a2ui-activity-wrapper";
 import { theme } from "./theme";
@@ -53,6 +53,41 @@ const CANVAS_TITLES: Record<CanvasContent["type"], string> = {
 // ---------------------------------------------------------------------------
 // Shared parsing helpers — used by both handler and render callbacks
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Dedup identical assistant text messages — works around LLMs that repeat
+// text before and after tool calls in the same turn. Tool/activity messages
+// may sit between the duplicates so we scan the full window, not just
+// adjacent pairs.
+// ---------------------------------------------------------------------------
+
+function deduplicateMessages(
+  messages: Array<{ role: string; content?: string; toolCalls?: unknown[] }>,
+  elements: React.ReactElement[],
+): React.ReactElement[] {
+  if (messages.length !== elements.length) return elements;
+
+  const dominated = new Set<number>();
+  const seen = new Map<string, number>(); // content → first index
+
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
+    if (msg.role !== "assistant" || typeof msg.content !== "string") continue;
+    const text = msg.content.trim();
+    if (!text) continue;
+
+    const prev = seen.get(text);
+    if (prev !== undefined && !msg.toolCalls?.length) {
+      // This is a text-only repeat of an earlier assistant message — hide it
+      dominated.add(i);
+    } else if (prev === undefined) {
+      seen.set(text, i);
+    }
+  }
+
+  if (dominated.size === 0) return elements;
+  return elements.filter((_, i) => !dominated.has(i));
+}
 
 function parseEmailList(raw: string): Email[] {
   const parsed = JSON.parse(raw);
@@ -467,6 +502,13 @@ function Chat({
         chatInputPlaceholder: isCanvasMode
           ? "Type a message..."
           : "Ask about your schedule, inbox, or compose an email...",
+      }}
+      messageView={{
+        children: ({ messages, messageElements, interruptElement }: {
+          messages: Array<{ role: string; content?: string; toolCalls?: unknown[] }>;
+          messageElements: React.ReactElement[];
+          interruptElement: React.ReactElement | null;
+        }) => <>{deduplicateMessages(messages, messageElements)}{interruptElement}</>,
       }}
     >
       {({ scrollView, input, suggestionView }: {

@@ -303,10 +303,18 @@ You MUST follow these exact sequences. NEVER skip the render step.
 - Write ONE short sentence BEFORE calling the render tool (e.g. "Here's your schedule for today.")
 - After calling the render tool, STOP. Do NOT write any more text. Your turn is DONE.
 - NEVER write text both before AND after a render tool call.
+- NEVER repeat or rephrase the same sentence after a tool call. If you already said it, do not say it again.
 - NEVER summarize or list the data as text — the component displays it.
 - NEVER skip the render tool and just describe the data in text.
 - Always generate valid JSON with double-quoted property names.
 - When updating the schedule, include ALL events in the render_calendar call (existing + new).
+
+## Example: Correct flow for "check my inbox"
+1. You write: "I'll pull up your inbox now."
+2. You call check_user_inbox
+3. You receive the inbox data
+4. You call render_inbox with the email data
+5. You STOP. No more text. Do NOT repeat "I'll pull up your inbox now." or any variation.
 """
 
 agent_llm = OpenAiCompatibleConfig(
