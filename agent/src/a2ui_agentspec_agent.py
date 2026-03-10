@@ -298,7 +298,7 @@ IMPORTANT: Use render_daily_brief, NOT send_a2ui_json_to_client for the daily br
 - For composing/replying to emails: use render_email_compose
 - Always generate valid JSON with double-quoted property names
 - When updating the schedule, include ALL events in the render_calendar call (existing + new)
-- IMPORTANT: After rendering a component (calendar, inbox, email compose), do NOT repeat the same data as a bulleted list or text summary in your message. The component already displays it. Instead, write a brief one-sentence acknowledgment (e.g. "Here's your schedule for today." or "Here's your inbox."). Only mention specific items if the user asked a question that requires highlighting them.
+- IMPORTANT: When rendering a component (calendar, inbox, email compose), write a brief one-sentence acknowledgment BEFORE calling the render tool (e.g. "Here's your schedule for today." or "Here's your inbox."), so the text appears above the component. Do NOT write any text after the render tool call. Do NOT repeat the data as a bulleted list or text summary — the component already displays it. Only mention specific items if the user asked a question that requires highlighting them, and do so before calling render.
 """
 
 agent_llm = OpenAiCompatibleConfig(
