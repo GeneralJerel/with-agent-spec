@@ -393,7 +393,7 @@ function Chat({
       { title: "Show calendar", message: "Show me my schedule for today" },
       { title: "Write brief", message: "Create my daily brief" },
     ],
-    available: "before-first-message",
+    available: "always",
   }, []);
 
   return (
@@ -406,7 +406,21 @@ function Chat({
           ? "Type a message..."
           : "Ask about your schedule, inbox, or compose an email...",
       }}
-    />
+    >
+      {({ scrollView, input, suggestionView }: {
+        scrollView: React.ReactNode;
+        input: React.ReactNode;
+        suggestionView: React.ReactNode;
+      }) => (
+        <div className="copilot-custom-chat">
+          {scrollView}
+          <div className="chips-above-input">
+            {suggestionView}
+          </div>
+          {input}
+        </div>
+      )}
+    </CopilotChat>
   );
 }
 

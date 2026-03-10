@@ -3,11 +3,44 @@
   padding-bottom: 120px !important;
 }
 
-/* === Suggestion chips: above the input pill, single scrollable row === */
+/* === Custom chat layout: chips above input pill === */
 
-/* Reorder children inside the welcome screen's inner flex-col container:
-   default order is: (1) welcome msg → (2) input → (3) chips
-   we swap to:       (1) welcome msg → (2) chips → (3) input */
+/* The children render prop layout container */
+.copilot-custom-chat {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hide the duplicate suggestions inside the scroll area (they're also rendered
+   separately in .chips-above-input via the suggestionView render prop) */
+.copilot-custom-chat > :first-child [data-testid="copilot-suggestions"] {
+  display: none !important;
+}
+
+/* Floating suggestion chips positioned just above the input pill */
+.chips-above-input {
+  position: absolute;
+  bottom: 110px;
+  left: 0;
+  right: 0;
+  z-index: 15;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  pointer-events: none;
+}
+
+[data-sidebar-chat] .chips-above-input {
+  bottom: 96px;
+  padding: 0 8px;
+}
+
+/* === Suggestion chips: welcome screen reordering === */
+
+/* On the welcome screen (no messages), CopilotChatView renders its own layout.
+   Reorder children so chips appear above the input pill. */
 [data-testid="copilot-welcome-screen"] > div > div:nth-child(2) {
   order: 3;
 }
@@ -20,6 +53,8 @@
   padding-inline: 0;
 }
 
+/* === Suggestion chips: shared styles === */
+
 /* Single non-wrapping row with hidden scrollbar */
 [data-testid="copilot-suggestions"] {
   flex-wrap: nowrap !important;
@@ -27,6 +62,7 @@
   overflow-y: hidden !important;
   max-width: 100% !important;
   padding-bottom: 2px; /* prevent clipping box-shadow on pills */
+  justify-content: center;
   /* Hide scrollbar (still scrollable) */
   scrollbar-width: none;
   -ms-overflow-style: none;
