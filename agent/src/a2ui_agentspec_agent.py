@@ -38,8 +38,8 @@ Today's date: 2026-02-02 (Monday). When the user asks a question without a speci
 
 ## Calendar Display
 When the user asks to see their schedule or calendar:
-1. First call get_user_schedule to retrieve the schedule data.
-2. Then call render_calendar with:
+1. Call get_user_schedule to retrieve the schedule data.
+2. After receiving the result, you MUST call render_calendar. NEVER stop after only writing text. Call render_calendar with:
    - date: today's date "2026-02-02"
    - dayName: "Monday"
    - events: a JSON array STRING where each object has:
@@ -56,8 +56,8 @@ When the user asks to see their schedule or calendar:
 
 ## Inbox Display
 When the user asks to check their inbox or emails:
-1. First call check_user_inbox to retrieve emails.
-2. Then call render_inbox with:
+1. Call check_user_inbox to retrieve emails.
+2. After receiving the result, you MUST call render_inbox. NEVER stop after only writing text. Call render_inbox with:
    - emails: a JSON array STRING where each object has:
      - "from": sender email address
      - "subject": email subject line
@@ -291,14 +291,22 @@ Adjust the number of event rows and email rows based on actual data. Add or remo
 
 IMPORTANT: Use render_daily_brief, NOT send_a2ui_json_to_client for the daily brief.
 
-# Reminders
-- For daily brief: use get_daily_brief then render_daily_brief
-- For calendar: use get_user_schedule then render_calendar
-- For inbox: use check_user_inbox then render_inbox
-- For composing/replying to emails: use render_email_compose
-- Always generate valid JSON with double-quoted property names
-- When updating the schedule, include ALL events in the render_calendar call (existing + new)
-- IMPORTANT: When rendering a component (calendar, inbox, email compose), write a brief one-sentence acknowledgment BEFORE calling the render tool (e.g. "Here's your schedule for today." or "Here's your inbox."), so the text appears above the component. Do NOT write any text after the render tool call. Do NOT repeat the data as a bulleted list or text summary — the component already displays it. Only mention specific items if the user asked a question that requires highlighting them, and do so before calling render.
+# CRITICAL: Required Tool-Calling Sequences
+You MUST follow these exact sequences. NEVER skip the render step.
+
+- Calendar: ALWAYS call get_user_schedule, then ALWAYS call render_calendar
+- Inbox: ALWAYS call check_user_inbox, then ALWAYS call render_inbox
+- Email compose: ALWAYS call render_email_compose
+- Daily brief: ALWAYS call get_daily_brief, then ALWAYS call render_daily_brief
+
+# CRITICAL: Text Output Rules
+- Write ONE short sentence BEFORE calling the render tool (e.g. "Here's your schedule for today.")
+- After calling the render tool, STOP. Do NOT write any more text. Your turn is DONE.
+- NEVER write text both before AND after a render tool call.
+- NEVER summarize or list the data as text — the component displays it.
+- NEVER skip the render tool and just describe the data in text.
+- Always generate valid JSON with double-quoted property names.
+- When updating the schedule, include ALL events in the render_calendar call (existing + new).
 """
 
 agent_llm = OpenAiCompatibleConfig(
@@ -306,7 +314,7 @@ agent_llm = OpenAiCompatibleConfig(
     model_id=os.environ.get("OPENAI_MODEL", "gpt-5.2"),
     url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
     api_type=OpenAIAPIType.RESPONSES,
-    default_generation_parameters=LlmGenerationConfig(reasoning={"effort": "none"})
+    default_generation_parameters=LlmGenerationConfig(reasoning={"effort": "low"})
 )
 
 send_a2ui_json_to_client_tool = ClientTool(
@@ -359,12 +367,14 @@ check_user_inbox_tool = ServerTool(
 get_user_schedule_tool = ServerTool(
     name="get_user_schedule",
     description="Retrieves the user's schedule for today. Returns a JSON array of time slots with events.",
+    outputs=[StringProperty(title="schedule_data")],
 )
 
 send_email_tool = ServerTool(
     name="send_email",
     description="Sends an email out. Accepts a single argument as the entire email, including the sender, recipients, subject, body, etc.",
-    inputs=[StringProperty(title="payload")]
+    inputs=[StringProperty(title="payload")],
+    outputs=[StringProperty(title="result")],
 )
 
 get_daily_brief_tool = ServerTool(
