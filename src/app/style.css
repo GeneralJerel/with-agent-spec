@@ -37,6 +37,11 @@
   padding: 0 8px;
 }
 
+/* Hide the scroll-to-bottom button (overlaps with chips) */
+[data-testid="copilot-scroll-to-bottom"] {
+  display: none !important;
+}
+
 /* === Suggestion chips: welcome screen reordering === */
 
 /* On the welcome screen (no messages), CopilotChatView renders its own layout.
