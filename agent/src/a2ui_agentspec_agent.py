@@ -13,6 +13,7 @@ from pyagentspec.property import StringProperty
 from pyagentspec.llms.openaiconfig import OpenAIAPIType
 from pyagentspec.llms.llmgenerationconfig import LlmGenerationConfig
 from pathlib import Path
+from datetime import datetime
 import json
 
 a2ui_prompts_folder = Path(__file__).resolve().parent / "a2ui_prompts"
@@ -26,13 +27,14 @@ A2UI_JSON_SCHEMA_PROMPT = f"""
 ---END A2UI JSON SCHEMA---
 """
 
-a2ui_email_component_json = (a2ui_prompts_folder / "email_form.json").read_text(encoding="utf-8")
-a2ui_email_update_json = (a2ui_prompts_folder / "email_form_update.json").read_text(encoding="utf-8")
 
+_today = datetime.now()
+_today_str = _today.strftime("%Y-%m-%d")
+_today_day = _today.strftime("%A")
 
 A2UI_SYSTEM_PROMPT = f"""You are a helpful Scheduling Assistant that helps users manage their calendar and emails.
 
-Today's date: 2026-02-02 (Monday). When the user asks a question without a specific date, assume they mean today.
+Today's date: {_today_str} ({_today_day}). When the user asks a question without a specific date, assume they mean today.
 
 # Rendering Rules
 
@@ -40,8 +42,8 @@ Today's date: 2026-02-02 (Monday). When the user asks a question without a speci
 When the user asks to see their schedule or calendar:
 1. Call get_user_schedule to retrieve the schedule data.
 2. After receiving the result, you MUST call render_calendar. NEVER stop after only writing text. Call render_calendar with:
-   - date: today's date "2026-02-02"
-   - dayName: "Monday"
+   - date: today's date "{_today_str}"
+   - dayName: "{_today_day}"
    - events: a JSON array STRING where each object has:
      - "startTime": start time like "08:00"
      - "endTime": end time like "09:00" (or "" if open-ended)

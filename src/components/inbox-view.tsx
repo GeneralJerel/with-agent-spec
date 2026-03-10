@@ -55,16 +55,16 @@ export function InboxView({ emails }: InboxViewProps) {
   const selectedEmail = emails.find((e) => e.id === selected);
 
   return (
-    <div className="max-w-2xl w-full rounded-xl shadow-lg bg-white overflow-hidden my-3">
+    <div className="max-w-2xl w-full rounded-xl bg-[var(--surface-primary)] border border-[var(--border-card)] overflow-hidden my-3" style={{ boxShadow: 'var(--shadow-card)' }}>
       {/* Header */}
-      <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between">
+      <div className="px-5 py-3.5 border-b border-[var(--border-default)] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <svg className="w-5 h-5 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
           </svg>
-          <h2 className="text-base font-semibold text-gray-900">Inbox</h2>
+          <h2 className="text-base font-semibold text-[var(--text-primary)]">Inbox</h2>
         </div>
-        <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+        <span className="text-xs font-medium text-[var(--text-tertiary)] bg-[var(--surface-quaternary)] px-2 py-0.5 rounded-full">
           {emails.length} message{emails.length !== 1 ? "s" : ""}
         </span>
       </div>
@@ -72,15 +72,15 @@ export function InboxView({ emails }: InboxViewProps) {
       {/* Split layout: list + detail panel */}
       <div className="flex min-h-[320px]">
         {/* Email list */}
-        <div className={`divide-y divide-gray-50 overflow-y-auto ${selectedEmail ? "w-1/2 border-r border-gray-100" : "w-full"}`}>
+        <div className={`divide-y divide-[var(--border-subtle)] overflow-y-auto ${selectedEmail ? "w-1/2 border-r border-[var(--border-default)]" : "w-full"}`}>
           {emails.map((email) => {
             const isActive = selected === email.id;
 
             return (
               <div
                 key={email.id}
-                className={`flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer relative ${
-                  isActive ? "bg-blue-50" : ""
+                className={`flex items-start gap-3 px-4 py-3 hover:bg-[var(--surface-tertiary)] transition-colors cursor-pointer relative ${
+                  isActive ? "bg-blue-500/10" : ""
                 }`}
                 onClick={() => setSelected(isActive ? null : email.id)}
               >
@@ -99,15 +99,15 @@ export function InboxView({ emails }: InboxViewProps) {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between gap-2">
-                    <p className={`text-sm truncate ${email.isRead ? "text-gray-600" : "text-gray-900 font-semibold"}`}>
+                    <p className={`text-sm truncate ${email.isRead ? "text-[var(--text-secondary)]" : "text-[var(--text-primary)] font-semibold"}`}>
                       {getSenderName(email.from)}
                     </p>
-                    <span className="text-[11px] text-gray-400 shrink-0">{email.date}</span>
+                    <span className="text-[11px] text-[var(--text-tertiary)] shrink-0">{email.date}</span>
                   </div>
-                  <p className={`text-sm truncate ${email.isRead ? "text-gray-500" : "text-gray-800 font-medium"}`}>
+                  <p className={`text-sm truncate ${email.isRead ? "text-[var(--text-tertiary)]" : "text-[var(--text-primary)] font-medium"}`}>
                     {email.subject}
                   </p>
-                  <p className="text-xs text-gray-400 truncate mt-0.5">{email.preview}</p>
+                  <p className="text-xs text-[var(--text-tertiary)] truncate mt-0.5">{email.preview}</p>
                 </div>
               </div>
             );
@@ -124,27 +124,27 @@ export function InboxView({ emails }: InboxViewProps) {
                 {getInitial(selectedEmail.from)}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-gray-900">{getSenderName(selectedEmail.from)}</p>
-                <p className="text-xs text-gray-400">{selectedEmail.from}</p>
+                <p className="text-sm font-semibold text-[var(--text-primary)]">{getSenderName(selectedEmail.from)}</p>
+                <p className="text-xs text-[var(--text-tertiary)]">{selectedEmail.from}</p>
               </div>
-              <span className="text-xs text-gray-400 ml-auto shrink-0">{selectedEmail.date}</span>
+              <span className="text-xs text-[var(--text-tertiary)] ml-auto shrink-0">{selectedEmail.date}</span>
             </div>
-            <h3 className="text-base font-semibold text-gray-900 mb-3">{selectedEmail.subject}</h3>
-            <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap flex-1">{selectedEmail.body}</p>
+            <h3 className="text-base font-semibold text-[var(--text-primary)] mb-3">{selectedEmail.subject}</h3>
+            <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap flex-1">{selectedEmail.body}</p>
 
             {/* Reply compose or buttons */}
             {replySent === selectedEmail.id ? (
-              <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2 text-sm text-emerald-600">
+              <div className="mt-4 pt-3 border-t border-[var(--border-default)] flex items-center gap-2 text-sm text-emerald-600">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Reply sent
               </div>
             ) : replyingTo === selectedEmail.id ? (
-              <div className="mt-4 pt-3 border-t border-gray-100">
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
-                  <div className="px-3 py-2 border-b border-gray-100 bg-gray-50">
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
+              <div className="mt-4 pt-3 border-t border-[var(--border-default)]">
+                <div className="border border-[var(--border-default)] rounded-lg overflow-hidden">
+                  <div className="px-3 py-2 border-b border-[var(--border-default)] bg-[var(--surface-tertiary)]">
+                    <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
                       </svg>
@@ -152,12 +152,12 @@ export function InboxView({ emails }: InboxViewProps) {
                     </div>
                   </div>
                   <textarea
-                    className="w-full px-3 py-2 text-sm text-gray-700 placeholder-gray-400 resize-none focus:outline-none"
+                    className="w-full px-3 py-2 text-sm text-[var(--text-secondary)] placeholder-[var(--text-tertiary)] bg-[var(--surface-primary)] resize-none focus:outline-none"
                     rows={3}
                     placeholder="Write your reply..."
                     autoFocus
                   />
-                  <div className="px-3 py-2 border-t border-gray-100 flex items-center gap-2">
+                  <div className="px-3 py-2 border-t border-[var(--border-default)] flex items-center gap-2">
                     <button
                       onClick={() => {
                         setReplySent(selectedEmail.id);
@@ -172,7 +172,7 @@ export function InboxView({ emails }: InboxViewProps) {
                     </button>
                     <button
                       onClick={() => setReplyingTo(null)}
-                      className="px-3 py-1 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                      className="px-3 py-1 text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
                     >
                       Discard
                     </button>
@@ -180,17 +180,17 @@ export function InboxView({ emails }: InboxViewProps) {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-100">
+              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-[var(--border-default)]">
                 <button
                   onClick={() => setReplyingTo(selectedEmail.id)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[var(--text-secondary)] bg-[var(--surface-primary)] border border-[var(--border-default)] rounded-full hover:bg-[var(--surface-tertiary)] transition-colors"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
                   </svg>
                   Reply
                 </button>
-                <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors">
+                <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[var(--text-secondary)] bg-[var(--surface-primary)] border border-[var(--border-default)] rounded-full hover:bg-[var(--surface-tertiary)] transition-colors">
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3" />
                   </svg>
@@ -207,24 +207,24 @@ export function InboxView({ emails }: InboxViewProps) {
 
 export function InboxLoadingState() {
   return (
-    <div className="max-w-2xl w-full rounded-xl shadow-lg bg-white overflow-hidden my-3 animate-pulse">
-      <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
-        <div className="w-5 h-5 bg-gray-200 rounded" />
-        <div className="h-4 w-16 bg-gray-200 rounded" />
+    <div className="max-w-2xl w-full rounded-xl bg-[var(--surface-primary)] border border-[var(--border-card)] overflow-hidden my-3 animate-pulse" style={{ boxShadow: 'var(--shadow-card)' }}>
+      <div className="px-5 py-3.5 border-b border-[var(--border-default)] flex items-center gap-2">
+        <div className="w-5 h-5 bg-[var(--surface-quaternary)] rounded" />
+        <div className="h-4 w-16 bg-[var(--surface-quaternary)] rounded" />
       </div>
-      <div className="divide-y divide-gray-50">
+      <div className="divide-y divide-[var(--border-subtle)]">
         {Array.from({ length: 4 }, (_, i) => (
           <div key={i} className="flex items-start gap-3 px-5 py-3">
-            <div className="w-9 h-9 rounded-full bg-gray-200 shrink-0" />
+            <div className="w-9 h-9 rounded-full bg-[var(--surface-quaternary)] shrink-0" />
             <div className="flex-1 space-y-2">
-              <div className="h-3 w-24 bg-gray-200 rounded" />
-              <div className="h-3 w-48 bg-gray-100 rounded" />
-              <div className="h-2.5 w-36 bg-gray-100 rounded" />
+              <div className="h-3 w-24 bg-[var(--surface-quaternary)] rounded" />
+              <div className="h-3 w-48 bg-[var(--surface-quaternary)] rounded" />
+              <div className="h-2.5 w-36 bg-[var(--surface-quaternary)] rounded" />
             </div>
           </div>
         ))}
       </div>
-      <div className="px-5 pb-3 text-xs text-gray-400">Checking inbox...</div>
+      <div className="px-5 pb-3 text-xs text-[var(--text-tertiary)]">Checking inbox...</div>
     </div>
   );
 }

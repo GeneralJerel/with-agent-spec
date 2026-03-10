@@ -100,16 +100,16 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
   const pendingCount = guests.filter((g) => g.status === "pending" || g.status === "maybe").length;
 
   return (
-    <div className="max-w-2xl w-full rounded-xl shadow-lg bg-white overflow-hidden my-3">
+    <div className="max-w-2xl w-full rounded-xl bg-[var(--surface-primary)] border border-[var(--border-card)] overflow-hidden my-3" style={{ boxShadow: 'var(--shadow-card)' }}>
       {/* Header */}
-      <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between">
+      <div className="px-5 py-3.5 border-b border-[var(--border-default)] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <svg className="w-5 h-5 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
           </svg>
-          <h2 className="text-base font-semibold text-gray-900">Schedule</h2>
+          <h2 className="text-base font-semibold text-[var(--text-primary)]">Schedule</h2>
         </div>
-        <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+        <span className="text-xs font-medium text-[var(--text-tertiary)] bg-[var(--surface-quaternary)] px-2 py-0.5 rounded-full">
           {formatDateBadge(date, dayName)} · {bookedCount} event{bookedCount !== 1 ? "s" : ""}
         </span>
       </div>
@@ -117,7 +117,7 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
       {/* Split layout: list + detail panel */}
       <div className="flex min-h-[320px]">
         {/* Event list */}
-        <div className={`divide-y divide-gray-50 overflow-y-auto ${selectedEvent ? "w-1/2 border-r border-gray-100" : "w-full"}`}>
+        <div className={`divide-y divide-[var(--border-subtle)] overflow-y-auto ${selectedEvent ? "w-1/2 border-r border-[var(--border-default)]" : "w-full"}`}>
           {events.map((event, i) => {
             const isActive = selected === i;
             const isBooked = !event.isAvailable;
@@ -126,8 +126,8 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
               <div
                 key={i}
                 className={`flex items-center gap-3 px-4 py-3 transition-colors ${
-                  isBooked ? "hover:bg-gray-50 cursor-pointer" : ""
-                } ${isActive ? "bg-indigo-50" : ""}`}
+                  isBooked ? "hover:bg-[var(--surface-tertiary)] cursor-pointer" : ""
+                } ${isActive ? "bg-indigo-500/10" : ""}`}
                 onClick={() => {
                   if (isBooked) {
                     setSelected(isActive ? null : i);
@@ -138,12 +138,12 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
                 {/* Dot */}
                 <div
                   className={`w-2 h-2 rounded-full shrink-0 ${
-                    isBooked ? "bg-indigo-500" : "bg-gray-200"
+                    isBooked ? "bg-indigo-500" : "bg-[var(--surface-quaternary)]"
                   }`}
                 />
 
                 {/* Time */}
-                <div className="w-20 shrink-0 text-xs text-gray-400">
+                <div className="w-20 shrink-0 text-xs text-[var(--text-tertiary)]">
                   {formatTimeShort(event.startTime)}
                   {event.endTime && (
                     <>
@@ -156,7 +156,7 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
                 {/* Title */}
                 <p
                   className={`flex-1 text-sm truncate ${
-                    isBooked ? "text-gray-900 font-medium" : "text-gray-400"
+                    isBooked ? "text-[var(--text-primary)] font-medium" : "text-[var(--text-tertiary)]"
                   }`}
                 >
                   {event.title}
@@ -164,7 +164,7 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
 
                 {/* Duration badge */}
                 {isBooked && event.endTime && (
-                  <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
+                  <span className="text-xs text-[var(--text-tertiary)] bg-[var(--surface-quaternary)] px-1.5 py-0.5 rounded shrink-0">
                     {getDuration(event.startTime, event.endTime)}
                   </span>
                 )}
@@ -180,12 +180,12 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
               <div className="w-3 h-3 rounded-full bg-indigo-500 shrink-0" />
               <span className="text-xs font-medium text-indigo-600 uppercase tracking-wide">Event</span>
             </div>
-            <h3 className="text-base font-semibold text-gray-900 mb-3">{selectedEvent.title}</h3>
+            <h3 className="text-base font-semibold text-[var(--text-primary)] mb-3">{selectedEvent.title}</h3>
 
             {/* Time & date info */}
             <div className="space-y-2 mb-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+                <svg className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>
@@ -193,8 +193,8 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
                   {selectedEvent.endTime && ` - ${formatTime(selectedEvent.endTime)}`}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+                <svg className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                 </svg>
                 <span>{formatDateBadge(date, dayName)}</span>
@@ -205,11 +205,11 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
             {guests.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <svg className="w-4 h-4 text-[var(--text-tertiary)]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-1.053M18 10.5a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                   </svg>
-                  <span className="text-sm font-medium text-gray-700">{guests.length} guest{guests.length !== 1 ? "s" : ""}</span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-sm font-medium text-[var(--text-secondary)]">{guests.length} guest{guests.length !== 1 ? "s" : ""}</span>
+                  <span className="text-xs text-[var(--text-tertiary)]">
                     {acceptedCount} yes{declinedCount > 0 ? `, ${declinedCount} no` : ""}{pendingCount > 0 ? `, ${pendingCount} awaiting` : ""}
                   </span>
                 </div>
@@ -221,7 +221,7 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
                         <div className={`w-6 h-6 rounded-full ${getGuestAvatarColor(guest.email)} flex items-center justify-center text-white text-[10px] font-semibold shrink-0`}>
                           {getGuestInitial(guest.email)}
                         </div>
-                        <span className="text-xs text-gray-600 flex-1 truncate">{getGuestName(guest.email)}</span>
+                        <span className="text-xs text-[var(--text-secondary)] flex-1 truncate">{getGuestName(guest.email)}</span>
                         <svg className={`w-3.5 h-3.5 shrink-0 ${statusInfo.color}`} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" d={statusInfo.icon} />
                         </svg>
@@ -233,8 +233,8 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
             )}
 
             {/* RSVP buttons */}
-            <div className="mt-auto pt-3 border-t border-gray-100">
-              <p className="text-xs text-gray-400 mb-2">Going?</p>
+            <div className="mt-auto pt-3 border-t border-[var(--border-default)]">
+              <p className="text-xs text-[var(--text-tertiary)] mb-2">Going?</p>
               <div className="flex items-center gap-2">
                 {(["Yes", "No", "Maybe"] as const).map((label) => {
                   const isActive = rsvp === label;
@@ -249,7 +249,7 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
                             : label === "No"
                               ? "bg-gray-700 text-white border-gray-700"
                               : "bg-amber-500 text-white border-amber-500"
-                          : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                          : "bg-[var(--surface-primary)] text-[var(--text-secondary)] border-[var(--border-default)] hover:bg-[var(--surface-tertiary)]"
                       }`}
                     >
                       {label}
@@ -267,21 +267,21 @@ export function CalendarView({ date, dayName, events }: CalendarViewProps) {
 
 export function CalendarLoadingState() {
   return (
-    <div className="max-w-2xl w-full rounded-xl shadow-lg bg-white overflow-hidden my-3 animate-pulse">
-      <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
-        <div className="w-5 h-5 bg-gray-200 rounded" />
-        <div className="h-4 w-20 bg-gray-200 rounded" />
+    <div className="max-w-2xl w-full rounded-xl bg-[var(--surface-primary)] border border-[var(--border-card)] overflow-hidden my-3 animate-pulse" style={{ boxShadow: 'var(--shadow-card)' }}>
+      <div className="px-5 py-3.5 border-b border-[var(--border-default)] flex items-center gap-2">
+        <div className="w-5 h-5 bg-[var(--surface-quaternary)] rounded" />
+        <div className="h-4 w-20 bg-[var(--surface-quaternary)] rounded" />
       </div>
-      <div className="divide-y divide-gray-50">
+      <div className="divide-y divide-[var(--border-subtle)]">
         {Array.from({ length: 6 }, (_, i) => (
           <div key={i} className="flex items-center gap-3 px-5 py-3">
-            <div className="w-20 h-3 bg-gray-100 rounded shrink-0" />
-            <div className="w-2 h-2 rounded-full bg-gray-200 shrink-0" />
-            <div className="flex-1 h-3 bg-gray-100 rounded" />
+            <div className="w-20 h-3 bg-[var(--surface-quaternary)] rounded shrink-0" />
+            <div className="w-2 h-2 rounded-full bg-[var(--surface-quaternary)] shrink-0" />
+            <div className="flex-1 h-3 bg-[var(--surface-quaternary)] rounded" />
           </div>
         ))}
       </div>
-      <div className="px-5 pb-3 text-xs text-gray-400">Loading schedule...</div>
+      <div className="px-5 pb-3 text-xs text-[var(--text-tertiary)]">Loading schedule...</div>
     </div>
   );
 }

@@ -62,7 +62,7 @@ const CANVAS_TITLES: Record<CanvasContent["type"], string> = {
 // ---------------------------------------------------------------------------
 
 function deduplicateMessages(
-  messages: Array<{ role: string; content?: string; toolCalls?: unknown[] }>,
+  messages: Array<{ role: string; content?: unknown; toolCalls?: unknown[] }>,
   elements: React.ReactElement[],
 ): React.ReactElement[] {
   if (messages.length !== elements.length) return elements;
@@ -256,6 +256,9 @@ function Chat({
   onShowChat: () => void;
   onShowCanvas: () => void;
 }) {
+  const isCanvasModeRef = useRef(isCanvasMode);
+  isCanvasModeRef.current = isCanvasMode;
+
   // A2UI fallback tool
   useFrontendTool(
     {
@@ -330,14 +333,14 @@ function Chat({
         events: z.string(),
       }) as any,
       handler: async ({ date, dayName, events }: { date: string; dayName: string; events: string }) => {
-        if (isCanvasMode) {
+        if (isCanvasModeRef.current) {
           try {
             onCanvasUpdate({ type: "calendar", date, dayName, events: parseCalendarEvents(events) });
           } catch (e) { console.error("Failed to parse calendar for canvas", e); }
         }
         return "Calendar rendered";
       },
-      render: ({ status, args }: { status: ToolCallStatus; args?: { date: string; dayName: string; events: string } }) => {
+      render: ({ status, args }) => {
         if (status !== ToolCallStatus.Complete || !args) return <CalendarLoadingState />;
         let events: CalendarEvent[] = [];
         try { events = parseCalendarEvents(args.events); } catch { /* empty */ }
@@ -368,14 +371,14 @@ function Chat({
         emails: z.string(),
       }) as any,
       handler: async ({ emails }: { emails: string }) => {
-        if (isCanvasMode) {
+        if (isCanvasModeRef.current) {
           try {
             onCanvasUpdate({ type: "inbox", emails: parseEmailList(emails) });
           } catch (e) { console.error("Failed to parse inbox for canvas", e); }
         }
         return "Inbox rendered";
       },
-      render: ({ status, args }: { status: ToolCallStatus; args?: { emails: string } }) => {
+      render: ({ status, args }) => {
         if (status !== ToolCallStatus.Complete || !args) return <InboxLoadingState />;
         let emails: Email[] = [];
         try {
@@ -408,13 +411,13 @@ function Chat({
         email: z.string(),
       }) as any,
       handler: async ({ email }: { email: string }) => {
-        if (isCanvasMode) {
+        if (isCanvasModeRef.current) {
           try { onCanvasUpdate({ type: "email", email: parseEmailCompose(email) }); }
           catch (e) { console.error("Failed to parse email for canvas", e); }
         }
         return "Email compose rendered";
       },
-      render: ({ status, args }: { status: ToolCallStatus; args?: { email: string } }) => {
+      render: ({ status, args }) => {
         if (status !== ToolCallStatus.Complete || !args) return <EmailComposeLoadingState />;
         let email: EmailComposeData = { to: "", subject: "", body: "" };
         try { email = parseEmailCompose(args.email); } catch { /* empty */ }
@@ -476,12 +479,7 @@ function Chat({
           : "Ask about your schedule, inbox, or compose an email...",
       }}
       messageView={{
-        children: ({ messages, messageElements, interruptElement, isRunning }: {
-          messages: Array<{ role: string; content?: string; toolCalls?: unknown[] }>;
-          messageElements: React.ReactElement[];
-          interruptElement: React.ReactElement | null;
-          isRunning: boolean;
-        }) => (
+        children: ({ messages, messageElements, interruptElement, isRunning }) => (
           <>
             {deduplicateMessages(messages, messageElements)}
             {interruptElement}
@@ -498,11 +496,7 @@ function Chat({
         ),
       }}
     >
-      {({ scrollView, input, suggestionView }: {
-        scrollView: React.ReactNode;
-        input: React.ReactNode;
-        suggestionView: React.ReactNode;
-      }) => (
+      {({ scrollView, input, suggestionView }) => (
         <div className="copilot-custom-chat">
           {scrollView}
           <div className="chips-above-input" style={{ opacity: isAtBottom ? 1 : 0, pointerEvents: isAtBottom ? undefined : "none", transition: "opacity 0.2s ease" }}>
