@@ -3,6 +3,38 @@
   padding-bottom: 120px !important;
 }
 
+/* === Suggestion chips: above the input pill, single scrollable row === */
+
+/* Reorder children inside the welcome screen's inner flex-col container:
+   default order is: (1) welcome msg → (2) input → (3) chips
+   we swap to:       (1) welcome msg → (2) chips → (3) input */
+[data-testid="copilot-welcome-screen"] > div > div:nth-child(2) {
+  order: 3;
+}
+[data-testid="copilot-welcome-screen"] > div > div:nth-child(3) {
+  order: 2;
+  width: 100%;
+  justify-content: flex-start;
+  margin-top: 0;
+  margin-bottom: 12px;
+  padding-inline: 0;
+}
+
+/* Single non-wrapping row with hidden scrollbar */
+[data-testid="copilot-suggestions"] {
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-width: 100% !important;
+  padding-bottom: 2px; /* prevent clipping box-shadow on pills */
+  /* Hide scrollbar (still scrollable) */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+[data-testid="copilot-suggestions"]::-webkit-scrollbar {
+  display: none;
+}
+
 /* Use the system font for A2UI surfaces to match the rest of the UI. */
 .a2ui-chat-container .a2ui-surface {
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,

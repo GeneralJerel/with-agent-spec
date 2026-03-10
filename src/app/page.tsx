@@ -389,10 +389,9 @@ function Chat({
 
   useConfigureSuggestions({
     suggestions: [
-      { title: "Daily brief", message: "Create my daily brief" },
-      { title: "View my schedule", message: "Show me my schedule for today" },
-      { title: "Check inbox", message: "Check my inbox" },
-      { title: "Compose email", message: "Help me draft an email" },
+      { title: "Show inbox", message: "Check my inbox" },
+      { title: "Show calendar", message: "Show me my schedule for today" },
+      { title: "Write brief", message: "Create my daily brief" },
     ],
     available: "before-first-message",
   }, []);
