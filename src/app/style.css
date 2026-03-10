@@ -210,17 +210,25 @@
   border-left: none;
 }
 
-/* Ensure CopilotChat input doesn't overflow in sidebar */
-.chat-sidebar > * {
-  max-width: 100%;
+/* Force compact single-row input layout in sidebar.
+   CopilotKit's layout evaluator switches to "expanded" (2-row) mode in narrow
+   containers. Override to keep the + | textarea | send layout on one row. */
+[data-sidebar-chat] [data-testid="copilot-chat-input"] > div {
+  grid-template-rows: auto !important;
+  align-items: center !important;
 }
 
-/* Fix input box warping: constrain the chat input area within the sidebar */
-.chat-sidebar [class*="overflow-y-scroll"],
-.chat-sidebar form,
-.chat-sidebar [class*="relative w-full"] {
-  max-width: 100% !important;
-  box-sizing: border-box !important;
+[data-sidebar-chat] [data-testid="copilot-chat-input"] > div > div:first-child {
+  grid-row: 1 !important;
+}
+
+[data-sidebar-chat] [data-testid="copilot-chat-input"] > div > div:nth-child(2) {
+  grid-column: 2 / 3 !important;
+  grid-row: 1 !important;
+}
+
+[data-sidebar-chat] [data-testid="copilot-chat-input"] > div > div:last-child {
+  grid-row: 1 !important;
 }
 
 /* === Compact Tool Cards (chat sidebar when content is in canvas) === */

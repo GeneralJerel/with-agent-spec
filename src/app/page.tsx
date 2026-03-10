@@ -404,7 +404,9 @@ function Chat({
       labels={{
         welcomeMessageText:
           "Hi! I'm your scheduling assistant. I can help you check your calendar, read emails, and compose messages.",
-        chatInputPlaceholder: "Ask about your schedule, inbox, or compose an email...",
+        chatInputPlaceholder: isCanvasMode
+          ? "Type a message..."
+          : "Ask about your schedule, inbox, or compose an email...",
       }}
     />
   );
@@ -447,7 +449,10 @@ export default function Page() {
         {isCanvasMode && canvas.content && (
           <Canvas content={canvas.content} onClose={handleMaximize} />
         )}
-        <div className={`chat-panel flex flex-col min-h-0 overflow-hidden ${isCanvasMode ? "chat-sidebar" : "flex-1"}`}>
+        <div
+          className={`chat-panel flex flex-col min-h-0 overflow-hidden ${isCanvasMode ? "chat-sidebar" : "flex-1"}`}
+          {...(isCanvasMode ? { "data-sidebar-chat": true } : {})}
+        >
           <Chat isCanvasMode={isCanvasMode} hasCanvasContent={canvas.content !== null} onCanvasUpdate={handleCanvasUpdate} onMaximize={handleMaximize} onMinimize={handleMinimize} />
         </div>
       </div>
