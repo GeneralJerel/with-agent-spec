@@ -10,7 +10,7 @@ import {
 } from "@copilotkit/react-core/v2";
 import { createA2UIMessageRenderer, A2UIViewer } from "@copilotkit/a2ui-renderer";
 import { z } from "zod";
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 
 import { withA2UIActivityMessage } from "@/components/a2ui-activity-wrapper";
 import { theme } from "./theme";
@@ -446,52 +446,24 @@ function Chat({
   }, []);
 
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [sentinelEl, setSentinelEl] = useState<HTMLDivElement | null>(null);
+  const sentinelRef = useCallback((node: HTMLDivElement | null) => {
+    setSentinelEl(node);
+  }, []);
 
   useEffect(() => {
-    let scrollEl: HTMLElement | null = null;
-    let observer: MutationObserver | null = null;
+    if (!sentinelEl) return;
 
-    const checkScroll = () => {
-      if (!scrollEl) return;
-      const threshold = 40;
-      const atBottom =
-        scrollEl.scrollHeight - scrollEl.scrollTop - scrollEl.clientHeight < threshold;
-      setIsAtBottom(atBottom);
-    };
-
-    const findAndAttach = (): boolean => {
-      const container = document.querySelector(".copilot-custom-chat");
-      if (!container) return false;
-
-      for (const child of Array.from(container.children)) {
-        const htmlEl = child as HTMLElement;
-        if (htmlEl.scrollHeight > htmlEl.clientHeight + 10) {
-          if (scrollEl === htmlEl) return true;
-          scrollEl?.removeEventListener("scroll", checkScroll);
-          scrollEl = htmlEl;
-          scrollEl.addEventListener("scroll", checkScroll, { passive: true });
-          checkScroll();
-          return true;
-        }
-      }
-      return false;
-    };
-
-    if (!findAndAttach()) {
-      observer = new MutationObserver(() => {
-        if (findAndAttach() && observer) {
-          observer.disconnect();
-          observer = null;
-        }
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
-    }
-
-    return () => {
-      scrollEl?.removeEventListener("scroll", checkScroll);
-      observer?.disconnect();
-    };
-  }, []);
+    // Use viewport root — the sentinel is inside a nested scroll container that
+    // clips it via CSS overflow, so the IO correctly reports it as not-intersecting
+    // when the user scrolls up (the sentinel is visually clipped out of view).
+    const io = new IntersectionObserver(
+      ([entry]) => setIsAtBottom(entry.isIntersecting),
+      { threshold: 0.1 },
+    );
+    io.observe(sentinelEl);
+    return () => io.disconnect();
+  }, [sentinelEl]);
 
   return (
     <CopilotChat
@@ -504,11 +476,26 @@ function Chat({
           : "Ask about your schedule, inbox, or compose an email...",
       }}
       messageView={{
-        children: ({ messages, messageElements, interruptElement }: {
+        children: ({ messages, messageElements, interruptElement, isRunning }: {
           messages: Array<{ role: string; content?: string; toolCalls?: unknown[] }>;
           messageElements: React.ReactElement[];
           interruptElement: React.ReactElement | null;
-        }) => <>{deduplicateMessages(messages, messageElements)}{interruptElement}</>,
+          isRunning: boolean;
+        }) => (
+          <>
+            {deduplicateMessages(messages, messageElements)}
+            {interruptElement}
+            {isRunning && (
+              <div className="cpk:mt-2">
+                <div
+                  data-testid="copilot-loading-cursor"
+                  className="cpk:w-[11px] cpk:h-[11px] cpk:rounded-full cpk:bg-foreground cpk:animate-pulse-cursor cpk:ml-1"
+                />
+              </div>
+            )}
+            <div ref={sentinelRef} style={{ height: 1, width: "100%" }} />
+          </>
+        ),
       }}
     >
       {({ scrollView, input, suggestionView }: {
