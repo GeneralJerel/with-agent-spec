@@ -53,3 +53,7 @@ bun.lockb
 venv
 .venv
 __pycache__
+
+# docs
+.chalk/
+.claude/
