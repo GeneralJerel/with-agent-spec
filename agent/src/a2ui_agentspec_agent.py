@@ -319,9 +319,7 @@ agent_llm = OpenAiCompatibleConfig(
 
 send_a2ui_json_to_client_tool = ClientTool(
     name="send_a2ui_json_to_client",
-    description="Sends A2UI JSON to the client to render rich UI for the user. " +
-    "Only use this for rendering the email compose form. " +
-    "The A2UI JSON Schema definition is between ---BEGIN A2UI JSON SCHEMA--- and ---END A2UI JSON SCHEMA--- in the system instructions.",
+    description="Legacy fallback for rendering raw A2UI JSON. Do not use directly — use render_calendar, render_inbox, render_email_compose, or render_daily_brief instead.",
     inputs=[StringProperty(title="a2ui_json", description="Valid A2UI JSON Schema to send to the client.")]
 )
 

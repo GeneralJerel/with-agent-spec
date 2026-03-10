@@ -1,3 +1,70 @@
+/* === Theme variables === */
+:root {
+  --surface-primary: #fff;
+  --surface-secondary: #fafafa;
+  --surface-tertiary: #f9fafb;
+  --surface-quaternary: #f3f4f6;
+  --surface-btn: #fff;
+  --surface-btn-hover: #f9fafb;
+  --surface-canvas-header: #fff;
+  --surface-dialog: #fff;
+
+  --text-primary: #374151;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+
+  --border-default: #e5e7eb;
+  --border-hover: #d1d5db;
+  --border-subtle: #f0f0f0;
+  --border-light: #f3f4f6;
+  --border-card: transparent;
+
+  --accent-indigo: #6366f1;
+  --accent-blue: #3b82f6;
+  --accent-emerald: #10b981;
+
+  --backdrop: rgba(0, 0, 0, 0.4);
+
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 2px 6px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-compact: 0 1px 3px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
+  --shadow-compact-hover: 0 2px 6px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-canvas-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 8px 20px rgba(0, 0, 0, 0.06);
+  --shadow-dialog: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-primary: rgba(0, 0, 0, 0.35);
+    --surface-secondary: #111;
+    --surface-tertiary: rgba(255, 255, 255, 0.1);
+    --surface-quaternary: rgba(255, 255, 255, 0.08);
+    --surface-btn: rgba(255, 255, 255, 0.06);
+    --surface-btn-hover: rgba(255, 255, 255, 0.1);
+    --surface-canvas-header: rgba(0, 0, 0, 0.3);
+    --surface-dialog: #1f2937;
+
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+    --text-tertiary: #6b7280;
+
+    --border-default: rgba(255, 255, 255, 0.1);
+    --border-hover: rgba(255, 255, 255, 0.16);
+    --border-subtle: rgba(255, 255, 255, 0.1);
+    --border-light: rgba(255, 255, 255, 0.08);
+    --border-card: rgba(255, 255, 255, 0.1);
+
+    --backdrop: rgba(0, 0, 0, 0.6);
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-card-hover: 0 2px 6px rgba(0, 0, 0, 0.4);
+    --shadow-compact: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-compact-hover: 0 2px 6px rgba(0, 0, 0, 0.4);
+    --shadow-canvas-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-dialog: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+}
+
 /* Fix for messages being hidden behind the absolutely-positioned input */
 .a2ui-chat-container [class*="overflow-y-scroll"] {
   padding-bottom: 120px !important;
@@ -89,12 +156,10 @@
   position: relative;
   margin: 12px 0;
   border-radius: 12px;
-  border: none;
-  background: #fff;
+  border: 1px solid var(--border-card);
+  background: var(--surface-primary);
   overflow: hidden;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.08),
-    0 4px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-card);
 }
 
 .a2ui-chat-container .a2ui-activity-header {
@@ -103,7 +168,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 10px 16px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--border-light);
   background: transparent;
 }
 
@@ -127,7 +192,7 @@
   align-items: center;
   gap: 6px;
   min-width: 0;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   letter-spacing: normal;
@@ -138,7 +203,7 @@
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: #6366f1;
+  background: var(--accent-indigo);
   box-shadow: none;
   flex: none;
 }
@@ -153,9 +218,9 @@
 
 .a2ui-chat-container .a2ui-activity-toggle {
   appearance: none;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  color: #374151;
+  border: 1px solid var(--border-default);
+  background: var(--surface-btn);
+  color: var(--text-primary);
   border-radius: 999px;
   padding: 4px 10px;
   font-size: 12px;
@@ -167,8 +232,8 @@
 }
 
 .a2ui-chat-container .a2ui-activity-toggle:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  background: var(--surface-btn-hover);
+  border-color: var(--border-hover);
 }
 
 .a2ui-chat-container .a2ui-activity-toggle:active {
@@ -210,8 +275,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  border-right: 1px solid #e5e7eb;
-  background: #fafafa;
+  border-right: 1px solid var(--border-default);
+  background: var(--surface-secondary);
   overflow: hidden;
 }
 
@@ -220,8 +285,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #fff;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--surface-canvas-header);
 }
 
 .canvas-header-left {
@@ -233,14 +298,14 @@
 .canvas-header-title {
   font-size: 14px;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-primary);
 }
 
 .canvas-header-close {
   appearance: none;
   border: none;
   background: transparent;
-  color: #9ca3af;
+  color: var(--text-tertiary);
   border-radius: 6px;
   padding: 4px;
   cursor: pointer;
@@ -251,8 +316,8 @@
 }
 
 .canvas-header-close:hover {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--surface-quaternary);
+  color: var(--text-primary);
 }
 
 .canvas-header-close:active {
@@ -314,19 +379,15 @@
   padding: 12px 16px;
   margin: 8px 0;
   border-radius: 12px;
-  border: 1px solid #f3f4f6;
-  background: #fff;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 2px 8px rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border-light);
+  background: var(--surface-primary);
+  box-shadow: var(--shadow-compact);
   transition: box-shadow 180ms ease, border-color 180ms ease;
 }
 
 .compact-tool-card:hover {
-  border-color: #e5e7eb;
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.08),
-    0 4px 16px rgba(0, 0, 0, 0.04);
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-compact-hover);
 }
 
 .compact-tool-card-header {
@@ -344,15 +405,15 @@
 }
 
 .compact-tool-card-icon--indigo {
-  color: #6366f1;
+  color: var(--accent-indigo);
 }
 
 .compact-tool-card-icon--blue {
-  color: #3b82f6;
+  color: var(--accent-blue);
 }
 
 .compact-tool-card-icon--emerald {
-  color: #10b981;
+  color: var(--accent-emerald);
 }
 
 .compact-tool-card-text {
@@ -365,7 +426,7 @@
 .compact-tool-card-title {
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -374,7 +435,7 @@
 .compact-tool-card-summary {
   font-size: 12px;
   font-weight: 400;
-  color: #9ca3af;
+  color: var(--text-tertiary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -382,9 +443,9 @@
 
 .compact-tool-card-btn {
   appearance: none;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  color: #6b7280;
+  border: 1px solid var(--border-default);
+  background: var(--surface-btn);
+  color: var(--text-secondary);
   border-radius: 999px;
   padding: 4px 10px;
   font-size: 11px;
@@ -402,9 +463,9 @@
 }
 
 .compact-tool-card-btn:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  color: #374151;
+  background: var(--surface-btn-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
 }
 
 .compact-tool-card-btn:active {
@@ -420,10 +481,9 @@
 .canvas-a2ui .a2ui-card > section {
   border-radius: 12px !important;
   padding: 20px 24px !important;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.08),
-    0 8px 20px rgba(0, 0, 0, 0.06) !important;
-  border: 1px solid #f0f0f0;
+  box-shadow: var(--shadow-canvas-card) !important;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-primary);
 }
 
 /* Modal trigger (entry point) — hover highlight to indicate clickability */
@@ -435,14 +495,14 @@
 }
 
 .canvas-a2ui .a2ui-modal > section:first-child:hover {
-  background: #f3f4f6;
+  background: var(--surface-quaternary);
 }
 
 /* Modal dialog — polished popup with shadow and rounded corners */
 .canvas-a2ui .a2ui-modal dialog {
   border-radius: 16px;
   border: none;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-dialog);
   max-width: 480px;
   width: 90%;
 }
@@ -451,10 +511,11 @@
   border-radius: 16px !important;
   padding: 24px !important;
   border: none !important;
+  background: var(--surface-dialog) !important;
 }
 
 .canvas-a2ui .a2ui-modal dialog::backdrop {
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--backdrop);
 }
 
 /* Modal close button */
@@ -466,9 +527,9 @@
 
 .canvas-a2ui .a2ui-modal dialog #controls button {
   appearance: none;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  color: #6b7280;
+  border: 1px solid var(--border-default);
+  background: var(--surface-btn);
+  color: var(--text-secondary);
   border-radius: 999px;
   width: 28px;
   height: 28px;
@@ -480,15 +541,15 @@
 }
 
 .canvas-a2ui .a2ui-modal dialog #controls button:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
+  background: var(--surface-quaternary);
+  border-color: var(--border-hover);
 }
 
 /* Divider — subtler */
 .canvas-a2ui .a2ui-divider > hr {
   margin: 8px 0 !important;
   opacity: 0.4;
-  border-color: #e5e7eb;
+  border-color: var(--border-default);
 }
 
 /* Icon — ensure Material Symbols Outlined font renders */
@@ -501,7 +562,7 @@
   display: inline-block;
   vertical-align: middle;
   -webkit-font-smoothing: antialiased;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 /* Row — ensure vertical centering of children */
@@ -532,121 +593,6 @@
   }
   .canvas-panel {
     border-right: none;
-    border-bottom: 1px solid #e5e7eb;
-  }
-}
-
-/* === Dark mode === */
-
-@media (prefers-color-scheme: dark) {
-  .a2ui-chat-container .a2ui-activity-message {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.35);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  }
-
-  .a2ui-chat-container .a2ui-activity-header {
-    border-bottom-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .a2ui-chat-container .a2ui-activity-toggle {
-    border-color: rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.06);
-    color: #e5e7eb;
-  }
-
-  .a2ui-chat-container .a2ui-activity-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .canvas-panel {
-    border-right-color: rgba(255, 255, 255, 0.1);
-    background: #111;
-  }
-
-  .canvas-header {
-    border-bottom-color: rgba(255, 255, 255, 0.08);
-    background: rgba(0, 0, 0, 0.3);
-  }
-
-  .canvas-header-title {
-    color: #e5e7eb;
-  }
-
-  .canvas-header-close {
-    color: #6b7280;
-  }
-
-  .canvas-header-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #e5e7eb;
-  }
-
-  .compact-tool-card {
-    border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.3);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  }
-
-  .compact-tool-card:hover {
-    border-color: rgba(255, 255, 255, 0.16);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-  }
-
-  .compact-tool-card-title {
-    color: #e5e7eb;
-  }
-
-  .compact-tool-card-summary {
-    color: #6b7280;
-  }
-
-  .compact-tool-card-btn {
-    border-color: rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.06);
-    color: #9ca3af;
-  }
-
-  .compact-tool-card-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #e5e7eb;
-  }
-
-  /* Canvas A2UI dark mode */
-  .canvas-a2ui .a2ui-card > section {
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    background: rgba(0, 0, 0, 0.3) !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
-  }
-
-  .canvas-a2ui .a2ui-modal > section:first-child:hover {
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .canvas-a2ui .a2ui-modal dialog {
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  }
-
-  .canvas-a2ui .a2ui-modal dialog > section {
-    background: #1f2937 !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  .canvas-a2ui .a2ui-modal dialog::backdrop {
-    background: rgba(0, 0, 0, 0.6);
-  }
-
-  .canvas-a2ui .a2ui-modal dialog #controls button {
-    border-color: rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.06);
-    color: #9ca3af;
-  }
-
-  .canvas-a2ui .a2ui-divider > hr {
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .canvas-a2ui .g-icon {
-    color: #9ca3af;
+    border-bottom: 1px solid var(--border-default);
   }
 }

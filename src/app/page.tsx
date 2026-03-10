@@ -51,6 +51,31 @@ const CANVAS_TITLES: Record<CanvasContent["type"], string> = {
 };
 
 // ---------------------------------------------------------------------------
+// Shared parsing helpers — used by both handler and render callbacks
+// ---------------------------------------------------------------------------
+
+function parseEmailList(raw: string): Email[] {
+  const parsed = JSON.parse(raw);
+  return parsed.map((e: any, i: number) => ({
+    id: String(i),
+    from: e.from,
+    subject: e.subject,
+    preview: e.body?.substring(0, 80) || "",
+    body: e.body || "",
+    date: e.date || "Today",
+    isRead: e.isRead ?? false,
+  }));
+}
+
+function parseCalendarEvents(raw: string): CalendarEvent[] {
+  return JSON.parse(raw);
+}
+
+function parseEmailCompose(raw: string): EmailComposeData {
+  return JSON.parse(raw);
+}
+
+// ---------------------------------------------------------------------------
 // Shared loading spinner
 // ---------------------------------------------------------------------------
 
@@ -187,14 +212,14 @@ function Chat({
   isCanvasMode,
   hasCanvasContent,
   onCanvasUpdate,
-  onMaximize,
-  onMinimize,
+  onShowChat,
+  onShowCanvas,
 }: {
   isCanvasMode: boolean;
   hasCanvasContent: boolean;
   onCanvasUpdate: (content: CanvasContent) => void;
-  onMaximize: () => void;
-  onMinimize: () => void;
+  onShowChat: () => void;
+  onShowCanvas: () => void;
 }) {
   // A2UI fallback tool
   useFrontendTool(
@@ -240,7 +265,7 @@ function Chat({
               title="Daily Brief"
               summary="Opened in canvas"
               buttonLabel="Show inline"
-              onAction={onMaximize}
+              onAction={onShowChat}
             />
           );
         }
@@ -251,12 +276,12 @@ function Chat({
             title="Daily Brief"
             summary={hasCanvasContent ? "Dashboard ready" : "Opened in canvas"}
             buttonLabel="Show in canvas"
-            onAction={onMinimize}
+            onAction={onShowCanvas}
           />
         );
       },
     },
-    [onCanvasUpdate, onMaximize, onMinimize, isCanvasMode, hasCanvasContent]
+    [onCanvasUpdate, onShowChat, onShowCanvas, isCanvasMode, hasCanvasContent]
   );
 
   // Calendar — routes to canvas when open, inline otherwise
@@ -272,7 +297,7 @@ function Chat({
       handler: async ({ date, dayName, events }: { date: string; dayName: string; events: string }) => {
         if (isCanvasMode) {
           try {
-            onCanvasUpdate({ type: "calendar", date, dayName, events: JSON.parse(events) });
+            onCanvasUpdate({ type: "calendar", date, dayName, events: parseCalendarEvents(events) });
           } catch (e) { console.error("Failed to parse calendar for canvas", e); }
         }
         return "Calendar rendered";
@@ -280,7 +305,7 @@ function Chat({
       render: ({ status, args }: { status: ToolCallStatus; args?: { date: string; dayName: string; events: string } }) => {
         if (status !== ToolCallStatus.Complete || !args) return <CalendarLoadingState />;
         let events: CalendarEvent[] = [];
-        try { events = JSON.parse(args.events); } catch { /* empty */ }
+        try { events = parseCalendarEvents(args.events); } catch { /* empty */ }
 
         if (isCanvasMode) {
           const bookedCount = events.filter((e) => !e.isAvailable).length;
@@ -289,14 +314,14 @@ function Chat({
               icon="calendar"
               title={`Schedule — ${args.dayName}`}
               summary={`${bookedCount} meeting${bookedCount !== 1 ? "s" : ""} today`}
-              onAction={onMaximize}
+              onAction={onShowChat}
             />
           );
         }
         return <CalendarView date={args.date} dayName={args.dayName} events={events} />;
       },
     },
-    [isCanvasMode, onCanvasUpdate, onMaximize]
+    [isCanvasMode, onCanvasUpdate, onShowChat]
   );
 
   // Inbox — routes to canvas when open, inline otherwise
@@ -310,13 +335,7 @@ function Chat({
       handler: async ({ emails }: { emails: string }) => {
         if (isCanvasMode) {
           try {
-            const parsed = JSON.parse(emails);
-            const mapped = parsed.map((e: any, i: number) => ({
-              id: String(i), from: e.from, subject: e.subject,
-              preview: e.body?.substring(0, 80) || "", body: e.body || "",
-              date: e.date || "Today", isRead: e.isRead ?? false,
-            }));
-            onCanvasUpdate({ type: "inbox", emails: mapped });
+            onCanvasUpdate({ type: "inbox", emails: parseEmailList(emails) });
           } catch (e) { console.error("Failed to parse inbox for canvas", e); }
         }
         return "Inbox rendered";
@@ -325,12 +344,7 @@ function Chat({
         if (status !== ToolCallStatus.Complete || !args) return <InboxLoadingState />;
         let emails: Email[] = [];
         try {
-          const parsed = JSON.parse(args.emails);
-          emails = parsed.map((e: any, i: number) => ({
-            id: String(i), from: e.from, subject: e.subject,
-            preview: e.body?.substring(0, 80) || "", body: e.body || "",
-            date: e.date || "Today", isRead: e.isRead ?? false,
-          }));
+          emails = parseEmailList(args.emails);
         } catch { /* empty */ }
 
         if (isCanvasMode) {
@@ -340,14 +354,14 @@ function Chat({
               icon="inbox"
               title="Inbox"
               summary={`${emails.length} message${emails.length !== 1 ? "s" : ""} · ${unread} unread`}
-              onAction={onMaximize}
+              onAction={onShowChat}
             />
           );
         }
         return <InboxView emails={emails} />;
       },
     },
-    [isCanvasMode, onCanvasUpdate, onMaximize]
+    [isCanvasMode, onCanvasUpdate, onShowChat]
   );
 
   // Email compose — routes to canvas when open, inline otherwise
@@ -360,7 +374,7 @@ function Chat({
       }) as any,
       handler: async ({ email }: { email: string }) => {
         if (isCanvasMode) {
-          try { onCanvasUpdate({ type: "email", email: JSON.parse(email) }); }
+          try { onCanvasUpdate({ type: "email", email: parseEmailCompose(email) }); }
           catch (e) { console.error("Failed to parse email for canvas", e); }
         }
         return "Email compose rendered";
@@ -368,7 +382,7 @@ function Chat({
       render: ({ status, args }: { status: ToolCallStatus; args?: { email: string } }) => {
         if (status !== ToolCallStatus.Complete || !args) return <EmailComposeLoadingState />;
         let email: EmailComposeData = { to: "", subject: "", body: "" };
-        try { email = JSON.parse(args.email); } catch { /* empty */ }
+        try { email = parseEmailCompose(args.email); } catch { /* empty */ }
 
         if (isCanvasMode) {
           const isReply = email.subject.startsWith("Re:");
@@ -377,14 +391,14 @@ function Chat({
               icon="email"
               title={isReply ? "Reply" : "New Message"}
               summary={`To: ${email.to} · ${email.subject}`}
-              onAction={onMaximize}
+              onAction={onShowChat}
             />
           );
         }
         return <EmailComposeView email={email} />;
       },
     },
-    [isCanvasMode, onCanvasUpdate, onMaximize]
+    [isCanvasMode, onCanvasUpdate, onShowChat]
   );
 
   useConfigureSuggestions({
@@ -399,30 +413,49 @@ function Chat({
   const [isAtBottom, setIsAtBottom] = useState(true);
 
   useEffect(() => {
-    let rafId: number;
-    let prevAtBottom = true;
+    let scrollEl: HTMLElement | null = null;
+    let observer: MutationObserver | null = null;
 
-    const tick = () => {
-      const container = document.querySelector(".copilot-custom-chat");
-      if (container) {
-        for (const el of container.querySelectorAll("*")) {
-          const htmlEl = el as HTMLElement;
-          if (htmlEl.scrollHeight > htmlEl.clientHeight + 10) {
-            const threshold = 40;
-            const atBottom = htmlEl.scrollHeight - htmlEl.scrollTop - htmlEl.clientHeight < threshold;
-            if (atBottom !== prevAtBottom) {
-              prevAtBottom = atBottom;
-              setIsAtBottom(atBottom);
-            }
-            break;
-          }
-        }
-      }
-      rafId = requestAnimationFrame(tick);
+    const checkScroll = () => {
+      if (!scrollEl) return;
+      const threshold = 40;
+      const atBottom =
+        scrollEl.scrollHeight - scrollEl.scrollTop - scrollEl.clientHeight < threshold;
+      setIsAtBottom(atBottom);
     };
 
-    rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
+    const findAndAttach = (): boolean => {
+      const container = document.querySelector(".copilot-custom-chat");
+      if (!container) return false;
+
+      for (const child of Array.from(container.children)) {
+        const htmlEl = child as HTMLElement;
+        if (htmlEl.scrollHeight > htmlEl.clientHeight + 10) {
+          if (scrollEl === htmlEl) return true;
+          scrollEl?.removeEventListener("scroll", checkScroll);
+          scrollEl = htmlEl;
+          scrollEl.addEventListener("scroll", checkScroll, { passive: true });
+          checkScroll();
+          return true;
+        }
+      }
+      return false;
+    };
+
+    if (!findAndAttach()) {
+      observer = new MutationObserver(() => {
+        if (findAndAttach() && observer) {
+          observer.disconnect();
+          observer = null;
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    return () => {
+      scrollEl?.removeEventListener("scroll", checkScroll);
+      observer?.disconnect();
+    };
   }, []);
 
   return (
@@ -467,11 +500,11 @@ export default function Page() {
     setCanvas({ mode: "canvas", content });
   }, []);
 
-  const handleMaximize = useCallback(() => {
+  const handleShowChat = useCallback(() => {
     setCanvas((prev) => ({ ...prev, mode: "chat" }));
   }, []);
 
-  const handleMinimize = useCallback(() => {
+  const handleShowCanvas = useCallback(() => {
     setCanvas((prev) => {
       if (prev.content) return { ...prev, mode: "canvas" };
       return prev;
@@ -488,13 +521,13 @@ export default function Page() {
     >
       <div className={`a2ui-chat-container flex h-full min-h-0 overflow-hidden ${isCanvasMode ? "layout-split" : "layout-chat"}`}>
         {isCanvasMode && canvas.content && (
-          <Canvas content={canvas.content} onClose={handleMaximize} />
+          <Canvas content={canvas.content} onClose={handleShowChat} />
         )}
         <div
           className={`chat-panel flex flex-col min-h-0 overflow-hidden ${isCanvasMode ? "chat-sidebar" : "flex-1"}`}
           {...(isCanvasMode ? { "data-sidebar-chat": true } : {})}
         >
-          <Chat isCanvasMode={isCanvasMode} hasCanvasContent={canvas.content !== null} onCanvasUpdate={handleCanvasUpdate} onMaximize={handleMaximize} onMinimize={handleMinimize} />
+          <Chat isCanvasMode={isCanvasMode} hasCanvasContent={canvas.content !== null} onCanvasUpdate={handleCanvasUpdate} onShowChat={handleShowChat} onShowCanvas={handleShowCanvas} />
         </div>
       </div>
     </CopilotKitProvider>
