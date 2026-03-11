@@ -555,9 +555,9 @@ export default function Page() {
           {/* Branded header */}
           <header className="branded-header">
             <div>
-              <div className="branded-header-title">Scheduling Assistant Demo</div>
+              <div className="branded-header-title">Agent Spec UI</div>
               <div className="branded-header-subtitle">
-                Built with Agent Spec, CopilotKit, and A2UI
+                Built with Agent Spec, CopilotKit AG-UI, and A2UI
               </div>
             </div>
             <div className="branded-header-badge">

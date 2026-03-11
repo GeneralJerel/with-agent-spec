@@ -845,8 +845,9 @@
 
 .branded-header-title {
   font-family: var(--font-family);
-  font-size: 16px;
+  font-size: 26px;
   font-weight: 700;
+  letter-spacing: -0.02em;
   background: linear-gradient(135deg, var(--color-lilac-dark), var(--color-mint-dark));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -854,7 +855,7 @@
 }
 
 .branded-header-subtitle {
-  font-size: 11px;
+  font-size: 16px;
   color: var(--text-tertiary);
   font-weight: 400;
   margin-top: 1px;
