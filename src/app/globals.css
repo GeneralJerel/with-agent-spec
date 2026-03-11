@@ -91,6 +91,11 @@
     --shadow-glow-lilac: 0 0 20px rgba(190, 194, 255, 0.15);
     --shadow-glow-mint: 0 0 20px rgba(133, 224, 206, 0.15);
   }
+
+  /* CopilotKit user message bubble — make transparent in glass container */
+  [data-copilotkit] {
+    --muted: oklch(26.9% 0 0 / 0.08) !important;
+  }
 }
 
 /* === Base Styles === */

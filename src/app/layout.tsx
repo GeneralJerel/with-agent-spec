@@ -4,16 +4,16 @@ import "./globals.css";
 import "./style.css";
 
 export const metadata: Metadata = {
-  title: "Agent Spec x CopilotKit | AI Scheduling Assistant",
-  description: "AI scheduling assistant powered by CopilotKit and Agent Spec — manage your calendar, inbox, and emails with conversational AI",
+  title: "Scheduling Assistant Demo",
+  description: "Built with Agent Spec, CopilotKit, and A2UI — manage your calendar, inbox, and emails with conversational AI",
   openGraph: {
-    title: "Agent Spec x CopilotKit",
-    description: "AI scheduling assistant powered by CopilotKit and Agent Spec",
+    title: "Scheduling Assistant Demo",
+    description: "Built with Agent Spec, CopilotKit, and A2UI",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Agent Spec x CopilotKit",
-    description: "AI scheduling assistant powered by CopilotKit and Agent Spec",
+    title: "Scheduling Assistant Demo",
+    description: "Built with Agent Spec, CopilotKit, and A2UI",
   },
   icons: {
     icon: "/favicon.svg",
