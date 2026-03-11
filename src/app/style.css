@@ -232,6 +232,21 @@
   background: transparent !important;
 }
 
+/* CopilotKit input wrapper — match content area background */
+.copilot-custom-chat--has-messages {
+  background: #fff;
+}
+
+.copilot-custom-chat > [data-copilotkit] {
+  padding: 8px 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .copilot-custom-chat--has-messages {
+    background: rgba(10, 10, 10, 1);
+  }
+}
+
 /* CopilotKit Content wrapper — opaque dark background for scroll container */
 @media (prefers-color-scheme: dark) {
   .copilot-custom-chat [data-copilotkit] > div {
@@ -239,9 +254,9 @@
   }
 }
 
-/* Fix for messages being hidden behind the absolutely-positioned input */
+/* Breathing room at the bottom of the message scroll area */
 .a2ui-chat-container [class*="overflow-y-scroll"] {
-  padding-bottom: 120px !important;
+  padding-bottom: 16px !important;
   background-color: var(--background);
   background-image: none;
   background-clip: unset;
@@ -255,7 +270,7 @@
   color: rgba(237, 237, 237, 1);
 }
 
-/* === Custom chat layout: chips above input pill === */
+/* === Custom chat layout === */
 
 /* The children render prop layout container */
 .copilot-custom-chat {
@@ -263,15 +278,25 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
-/* Hide the duplicate suggestions inside the scroll area (they're also rendered
-   separately in .chips-above-input via the suggestionView render prop) */
-.copilot-custom-chat > :first-child [data-testid="copilot-suggestions"] {
+/* When messages exist, switch to top-aligned scrollable layout */
+.copilot-custom-chat--has-messages {
+  justify-content: flex-start;
+}
+
+.copilot-custom-chat--has-messages > :first-child {
+  flex: 1 1 0%;
+  min-height: 0;
+}
+
+/* Hide duplicate suggestion chips rendered by CopilotKit inside the scroll area */
+.copilot-custom-chat--has-messages > :first-child [data-testid="copilot-suggestions"] {
   display: none !important;
 }
 
-/* Floating suggestion chips positioned just above the input pill */
+/* Floating suggestion chips — only used in canvas/sidebar mode */
 .chips-above-input {
   position: absolute;
   bottom: 110px;
@@ -294,27 +319,18 @@
   display: none !important;
 }
 
-/* === Suggestion chips: welcome screen reordering === */
-
-/* On the welcome screen (no messages), CopilotChatView renders its own layout.
-   Reorder children so chips appear above the input pill. */
-[data-testid="copilot-welcome-screen"] > div > div:nth-child(2) {
-  order: 3;
-}
-[data-testid="copilot-welcome-screen"] > div > div:nth-child(3) {
-  order: 2;
-  width: 100%;
-  justify-content: center;
-  margin-top: 0;
-  margin-bottom: 12px;
-  padding-inline: 0;
-}
+/* === Welcome screen overrides === */
 
 [data-testid="copilot-welcome-screen"] {
   background-color: var(--surface-secondary);
   background-clip: unset;
   -webkit-background-clip: unset;
   color: rgba(250, 250, 250, 1);
+}
+
+/* Hide the default welcome screen suggestion chips (we render our own below the cards) */
+[data-testid="copilot-welcome-screen"] [data-testid="copilot-suggestions"] {
+  display: none !important;
 }
 
 /* === Suggestion chips: shared styles === */
@@ -831,23 +847,20 @@
   }
 }
 
-/* === Branded Header === */
+/* === Branded Title Block (above input pill) === */
 
-.branded-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--color-border-glass);
-  background: transparent;
+.explainer-title-block {
   flex-shrink: 0;
+  text-align: center;
+  padding: 0 24px 20px;
 }
 
 .branded-header-title {
   font-family: var(--font-family);
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   letter-spacing: -0.02em;
+  text-align: center;
   background: linear-gradient(135deg, var(--color-lilac-dark), var(--color-mint-dark));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -855,23 +868,12 @@
 }
 
 .branded-header-subtitle {
-  font-size: 16px;
+  font-size: 15px;
   color: var(--text-tertiary);
   font-weight: 400;
-  margin-top: 1px;
-}
-
-.branded-header-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 500;
-  background: var(--surface-quaternary);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-light);
+  text-align: center;
+  margin-top: 4px;
+  margin-bottom: 0;
 }
 
 /* === CTA Banner === */
@@ -1017,9 +1019,8 @@
 
 .explainer-section {
   flex-shrink: 0;
-  padding: 20px 24px 28px;
+  padding: 24px 24px 16px;
   text-align: center;
-  border-top: 1px solid var(--color-border-glass);
 }
 
 .explainer-headline {
@@ -1104,6 +1105,62 @@
   .explainer-section {
     padding: 16px 16px 24px;
   }
+}
+
+/* === Explainer Prompts (suggestion chips below cards) === */
+
+.explainer-prompts {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 20px 16px 24px;
+}
+
+.explainer-prompts-label {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  margin: 0 0 10px;
+}
+
+/* Custom suggestion chips in the welcome view */
+.suggestion-chips {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.suggestion-chip {
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--color-border-glass);
+  border-radius: 20px;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.suggestion-chip:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--color-lilac-dark);
+  color: var(--color-lilac-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+}
+
+/* Hide the default CopilotKit welcome message (replaced by branded title) */
+[data-testid="copilot-welcome-screen"] [data-testid="copilot-welcome-message"] {
+  display: none !important;
+}
+
+/* Hide the disclaimer fallback */
+[data-testid="copilot-disclaimer"] {
+  display: none !important;
 }
 
 /* === Glassmorphism Panel Overlays === */

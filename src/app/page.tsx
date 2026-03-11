@@ -7,6 +7,8 @@ import {
   ToolCallStatus,
   useFrontendTool,
   useConfigureSuggestions,
+  useAgent,
+  useCopilotKit,
 } from "@copilotkit/react-core/v2";
 import { createA2UIMessageRenderer, A2UIViewer } from "@copilotkit/a2ui-renderer";
 import { z } from "zod";
@@ -21,7 +23,7 @@ import type { Email } from "@/components/inbox-view";
 import { EmailComposeView, EmailComposeLoadingState } from "@/components/email-compose-view";
 import type { EmailComposeData } from "@/components/email-compose-view";
 import { CTABanner } from "@/components/cta-banner";
-import { ExplainerSection } from "@/components/explainer-section";
+import { ExplainerTitle, ExplainerCards } from "@/components/explainer-section";
 
 // Disable static optimization for this page
 export const dynamic = "force-dynamic";
@@ -441,15 +443,31 @@ function Chat({
     [isCanvasMode, onCanvasUpdate, onShowChat]
   );
 
-  useConfigureSuggestions({
-    suggestions: [
-      { title: "Show inbox", message: "Check my inbox" },
-      { title: "Show calendar", message: "Show me my schedule for today" },
-      { title: "Write brief", message: "Create my daily brief" },
-    ],
-    available: "always",
-  }, []);
+  const suggestions = useMemo(() => [
+    { title: "Show inbox", message: "Check my inbox" },
+    { title: "Show calendar", message: "Show me my schedule for today" },
+    { title: "Write brief", message: "Create my daily brief" },
+  ], []);
 
+  useConfigureSuggestions({ suggestions, available: "always" }, []);
+
+  const { agent } = useAgent({ agentId: "my_a2ui_agent" });
+  const { copilotkit } = useCopilotKit();
+
+  const submitSuggestion = useCallback(async (message: string) => {
+    agent.addMessage({
+      id: crypto.randomUUID(),
+      role: "user",
+      content: message,
+    });
+    try {
+      await copilotkit.runAgent({ agent });
+    } catch (error) {
+      console.error("submitSuggestion: runAgent failed", error);
+    }
+  }, [agent, copilotkit]);
+
+  const [hasMessages, setHasMessages] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [sentinelEl, setSentinelEl] = useState<HTMLDivElement | null>(null);
   const sentinelRef = useCallback((node: HTMLDivElement | null) => {
@@ -474,37 +492,67 @@ function Chat({
     <CopilotChat
       className="flex-1 min-h-0 overflow-hidden"
       agentId="my_a2ui_agent"
+      welcomeScreen={false}
       labels={{
-        welcomeMessageText: "How can I help you today?",
+        welcomeMessageText: "",
         chatInputPlaceholder: isCanvasMode
           ? "Type a message..."
           : "Ask about your schedule, inbox, or compose an email...",
       }}
+      input={{ showDisclaimer: false, positioning: "static" }}
       messageView={{
-        children: ({ messages, messageElements, interruptElement, isRunning }) => (
-          <>
-            {deduplicateMessages(messages, messageElements)}
-            {interruptElement}
-            {isRunning && (
-              <div className="cpk:mt-2">
-                <div
-                  data-testid="copilot-loading-cursor"
-                  className="cpk:w-[11px] cpk:h-[11px] cpk:rounded-full cpk:bg-foreground cpk:animate-pulse-cursor cpk:ml-1"
-                />
-              </div>
-            )}
-            <div ref={sentinelRef} style={{ height: 1, width: "100%" }} />
-          </>
-        ),
+        children: ({ messages, messageElements, interruptElement, isRunning }) => {
+          if (messages.length > 0 !== hasMessages) {
+            // Defer state update to avoid render-during-render
+            Promise.resolve().then(() => setHasMessages(messages.length > 0));
+          }
+          return (
+            <>
+              {deduplicateMessages(messages, messageElements)}
+              {interruptElement}
+              {isRunning && (
+                <div className="cpk:mt-2">
+                  <div
+                    data-testid="copilot-loading-cursor"
+                    className="cpk:w-[11px] cpk:h-[11px] cpk:rounded-full cpk:bg-foreground cpk:animate-pulse-cursor cpk:ml-1"
+                  />
+                </div>
+              )}
+              <div ref={sentinelRef} style={{ height: 1, width: "100%" }} />
+            </>
+          );
+        },
       }}
     >
       {({ scrollView, input, suggestionView }) => (
-        <div className="copilot-custom-chat">
-          {scrollView}
-          <div className="chips-above-input" style={{ opacity: isAtBottom ? 1 : 0, pointerEvents: isAtBottom ? undefined : "none", transition: "opacity 0.2s ease" }}>
-            {suggestionView}
+        <div className={`copilot-custom-chat ${hasMessages ? "copilot-custom-chat--has-messages" : ""}`}>
+          <div style={hasMessages ? { flex: '1 1 0%', minHeight: 0, display: 'flex', flexDirection: 'column' } : { position: 'absolute', width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+            {scrollView}
           </div>
+          {!isCanvasMode && !hasMessages && <ExplainerTitle />}
           {input}
+          {!isCanvasMode && !hasMessages && <ExplainerCards />}
+          {!isCanvasMode && !hasMessages && (
+            <div className="explainer-prompts">
+              <p className="explainer-prompts-label">Try these prompts:</p>
+              <div className="suggestion-chips">
+                {suggestions.map((s) => (
+                  <button
+                    key={s.title}
+                    className="suggestion-chip"
+                    onClick={() => submitSuggestion(s.message)}
+                  >
+                    {s.title}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {(isCanvasMode || hasMessages) && (
+            <div className="chips-above-input" style={{ opacity: isAtBottom ? 1 : 0, pointerEvents: isAtBottom ? undefined : "none", transition: "opacity 0.2s ease" }}>
+              {suggestionView}
+            </div>
+          )}
         </div>
       )}
     </CopilotChat>
@@ -553,22 +601,6 @@ export default function Page() {
       <div className={`relative z-10 h-full min-h-0 overflow-hidden ${isCanvasMode ? "flex flex-col" : "brand-shell"}`}>
         {/* Glass container */}
         <div className={`brand-glass-container flex flex-col min-h-0 overflow-hidden ${isCanvasMode ? "flex-1 brand-glass-container--split" : ""}`}>
-          {/* Branded header */}
-          <header className="branded-header">
-            <div>
-              <div className="branded-header-title">Portable Agents with Generative UI</div>
-              <div className="branded-header-subtitle">
-                Built with Agent Spec, CopilotKit AG-UI, and A2UI
-              </div>
-            </div>
-            <div className="branded-header-badge">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
-              </svg>
-              Demo
-            </div>
-          </header>
-
           {/* CTA Banner */}
           <CTABanner />
 
@@ -585,8 +617,6 @@ export default function Page() {
             </div>
           </div>
 
-          {/* Explainer cards — only in chat-only mode */}
-          {!isCanvasMode && <ExplainerSection />}
         </div>
       </div>
     </CopilotKitProvider>

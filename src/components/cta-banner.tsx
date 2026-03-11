@@ -15,7 +15,7 @@ export function CTABanner() {
           </span>
           <p className="cta-headline">
             Build AI agents with a universal spec.{" "}
-            <span className="cta-subtext">Agent Spec is the open standard for connecting AI agents to any frontend.</span>
+            <span className="cta-subtext">Open Agent Specification (Agent Spec) is a portable language for defining agentic systems.</span>
           </p>
         </div>
         <div className="cta-actions">

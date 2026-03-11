@@ -1,9 +1,20 @@
-export function ExplainerSection() {
+export function ExplainerTitle() {
+  return (
+    <div className="explainer-title-block">
+      <div className="branded-header-title">Portable Agents with Generative UI</div>
+      <div className="branded-header-subtitle">
+        Bring your Agent Spec Agent Configurations to interactive, renderable
+        UIs, powered by A2UI components over the AGUI Protocol
+      </div>
+    </div>
+  );
+}
+
+export function ExplainerCards() {
   return (
     <div className="explainer-section">
       <p className="explainer-headline">
-        Bring your Agent Spec Agent Configurations to interactive, renderable
-        UIs, powered by A2UI components over the AGUI Protocol
+        Built with Agent Spec, CopilotKit AG-UI, and A2UI
       </p>
 
       <div className="explainer-cards">
