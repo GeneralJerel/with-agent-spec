@@ -12,7 +12,7 @@ import {
 } from "@copilotkit/react-core/v2";
 import { createA2UIMessageRenderer, A2UIViewer } from "@copilotkit/a2ui-renderer";
 import { z } from "zod";
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef, type ReactNode } from "react";
 
 import { withA2UIActivityMessage } from "@/components/a2ui-activity-wrapper";
 import { theme } from "./theme";
@@ -91,6 +91,13 @@ function deduplicateMessages(
 
   if (dominated.size === 0) return elements;
   return elements.filter((_, i) => !dominated.has(i));
+}
+
+function MessageTracker({ count, onChange }: { count: number; onChange: (v: boolean) => void }): ReactNode {
+  useEffect(() => {
+    onChange(count > 0);
+  }, [count, onChange]);
+  return null;
 }
 
 function parseEmailList(raw: string): Email[] {
@@ -454,18 +461,24 @@ function Chat({
   const { agent } = useAgent({ agentId: "my_a2ui_agent" });
   const { copilotkit } = useCopilotKit();
 
+  const agentRef = useRef(agent);
+  agentRef.current = agent;
+  const copilotkitRef = useRef(copilotkit);
+  copilotkitRef.current = copilotkit;
+
   const submitSuggestion = useCallback(async (message: string) => {
-    agent.addMessage({
+    const a = agentRef.current;
+    a.addMessage({
       id: crypto.randomUUID(),
       role: "user",
       content: message,
     });
     try {
-      await copilotkit.runAgent({ agent });
+      await copilotkitRef.current.runAgent({ agent: a });
     } catch (error) {
       console.error("submitSuggestion: runAgent failed", error);
     }
-  }, [agent, copilotkit]);
+  }, []);
 
   const [hasMessages, setHasMessages] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
@@ -501,32 +514,30 @@ function Chat({
       }}
       input={{ showDisclaimer: false, positioning: "static" }}
       messageView={{
-        children: ({ messages, messageElements, interruptElement, isRunning }) => {
-          if (messages.length > 0 !== hasMessages) {
-            // Defer state update to avoid render-during-render
-            Promise.resolve().then(() => setHasMessages(messages.length > 0));
-          }
-          return (
-            <>
-              {deduplicateMessages(messages, messageElements)}
-              {interruptElement}
-              {isRunning && (
-                <div className="cpk:mt-2">
-                  <div
-                    data-testid="copilot-loading-cursor"
-                    className="cpk:w-[11px] cpk:h-[11px] cpk:rounded-full cpk:bg-foreground cpk:animate-pulse-cursor cpk:ml-1"
-                  />
-                </div>
-              )}
-              <div ref={sentinelRef} style={{ height: 1, width: "100%" }} />
-            </>
-          );
-        },
+        children: ({ messages, messageElements, interruptElement, isRunning }) => (
+          <>
+            <MessageTracker count={messages.length} onChange={setHasMessages} />
+            {deduplicateMessages(messages, messageElements)}
+            {interruptElement}
+            {isRunning && (
+              <div className="cpk:mt-2">
+                <div
+                  data-testid="copilot-loading-cursor"
+                  className="cpk:w-[11px] cpk:h-[11px] cpk:rounded-full cpk:bg-foreground cpk:animate-pulse-cursor cpk:ml-1"
+                />
+              </div>
+            )}
+            <div ref={sentinelRef} style={{ height: 1, width: "100%" }} />
+          </>
+        ),
       }}
     >
       {({ scrollView, input, suggestionView }) => (
         <div className={`copilot-custom-chat ${hasMessages ? "copilot-custom-chat--has-messages" : ""}`}>
-          <div style={hasMessages ? { flex: '1 1 0%', minHeight: 0, display: 'flex', flexDirection: 'column' } : { position: 'absolute', width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+          <div style={hasMessages
+            ? { flex: '1 1 0%', minHeight: 0, display: 'flex', flexDirection: 'column' }
+            : { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, visibility: 'hidden', pointerEvents: 'none' }
+          }>
             {scrollView}
           </div>
           {!isCanvasMode && !hasMessages && <ExplainerTitle />}

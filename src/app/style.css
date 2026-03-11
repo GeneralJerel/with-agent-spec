@@ -68,6 +68,28 @@
   }
 }
 
+/* ===================================================================
+   CopilotKit Glass Integration
+   Tested with: @copilotkit/react-core 0.0.0-mme-ag-ui-0-0-46-20260227141603
+
+   Relied-upon selectors (update if CopilotKit DOM changes):
+     [data-copilotkit]                       — root theme scope
+     [data-testid="copilot-user-message"]    — user message bubble
+     [data-testid="copilot-assistant-message"] — assistant message bubble
+     [data-testid="copilot-welcome-screen"]  — welcome screen wrapper
+     [data-testid="copilot-welcome-message"] — welcome text
+     [data-testid="copilot-suggestions"]     — suggestion chip container
+     [data-testid="copilot-scroll-to-bottom"] — scroll button
+     [data-testid="copilot-disclaimer"]      — disclaimer element
+     [data-testid="copilot-chat-input"]      — input area
+     [class*="cpk:bg-muted"]                 — muted background utility
+     [class*="bg-background"]                — background utility
+     .copilotKitMessages                     — v1 message container
+
+   These overrides use !important to force transparency inside the
+   glassmorphism shell. Verify after any CopilotKit version bump.
+   =================================================================== */
+
 /* CopilotKit v2 light mode — transparent backgrounds for glass container */
 [data-copilotkit][data-copilotkit] {
   --background: transparent;
@@ -169,31 +191,17 @@
     background: transparent !important;
   }
 
-  .brand-glass-container [data-testid="copilot-user-message"] {
-    background-image: radial-gradient(circle at 50% 50%, rgba(250, 250, 250, 1) 0%, rgba(0, 0, 0, 1) 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-  }
-
+  .brand-glass-container [data-testid="copilot-user-message"],
   .brand-glass-container [data-testid="copilot-assistant-message"] {
-    background-image: radial-gradient(circle at 50% 50%, rgba(250, 250, 250, 1) 0%, rgba(0, 0, 0, 1) 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
+    color: rgba(245, 245, 245, 0.95);
   }
 
-  .brand-glass-container [data-testid="copilot-assistant-message"] .space-y-4.whitespace-normal {
-    background-image: radial-gradient(circle at 50% 50%, rgba(250, 250, 250, 1) 0%, rgba(0, 0, 0, 1) 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
+  .brand-glass-container [data-testid="copilot-assistant-message"] code {
+    color: rgba(220, 220, 255, 0.9);
   }
 
-  .brand-glass-container [data-testid="copilot-assistant-message"] .space-y-4.whitespace-normal p {
-    background-clip: unset;
-    -webkit-background-clip: unset;
-    color: rgba(250, 250, 250, 1);
+  .brand-glass-container [data-testid="copilot-assistant-message"] a {
+    color: var(--color-lilac-light);
   }
 }
 
