@@ -542,15 +542,43 @@ export default function Page() {
       showDevConsole="auto"
       renderActivityMessages={activityRenderers}
     >
-      <div className={`a2ui-chat-container flex h-full min-h-0 overflow-hidden ${isCanvasMode ? "layout-split" : "layout-chat"}`}>
-        {isCanvasMode && canvas.content && (
-          <Canvas content={canvas.content} onClose={handleShowChat} />
-        )}
-        <div
-          className={`chat-panel flex flex-col min-h-0 overflow-hidden ${isCanvasMode ? "chat-sidebar" : "flex-1"}`}
-          {...(isCanvasMode ? { "data-sidebar-chat": true } : {})}
-        >
-          <Chat isCanvasMode={isCanvasMode} hasCanvasContent={canvas.content !== null} onCanvasUpdate={handleCanvasUpdate} onShowChat={handleShowChat} onShowCanvas={handleShowCanvas} />
+      {/* Animated background blobs */}
+      <div className="abstract-bg">
+        <div className="blob-3" />
+      </div>
+
+      {/* Main content above background */}
+      <div className={`relative z-10 h-full min-h-0 overflow-hidden ${isCanvasMode ? "flex flex-col" : "brand-shell"}`}>
+        {/* Glass container */}
+        <div className={`brand-glass-container flex flex-col min-h-0 overflow-hidden ${isCanvasMode ? "flex-1 brand-glass-container--split" : ""}`}>
+          {/* Branded header */}
+          <header className="branded-header">
+            <div>
+              <div className="branded-header-title">Agent Spec x CopilotKit</div>
+              <div className="branded-header-subtitle">
+                AI scheduling assistant powered by CopilotKit and Agent Spec
+              </div>
+            </div>
+            <div className="branded-header-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
+              </svg>
+              Demo
+            </div>
+          </header>
+
+          {/* App layout */}
+          <div className={`a2ui-chat-container flex flex-1 min-h-0 overflow-hidden ${isCanvasMode ? "layout-split" : "layout-chat"}`}>
+            {isCanvasMode && canvas.content && (
+              <Canvas content={canvas.content} onClose={handleShowChat} />
+            )}
+            <div
+              className={`chat-panel flex flex-col min-h-0 overflow-hidden ${isCanvasMode ? "chat-sidebar" : "flex-1"}`}
+              {...(isCanvasMode ? { "data-sidebar-chat": true } : {})}
+            >
+              <Chat isCanvasMode={isCanvasMode} hasCanvasContent={canvas.content !== null} onCanvasUpdate={handleCanvasUpdate} onShowChat={handleShowChat} onShowCanvas={handleShowCanvas} />
+            </div>
+          </div>
         </div>
       </div>
     </CopilotKitProvider>
