@@ -21,6 +21,7 @@ import type { Email } from "@/components/inbox-view";
 import { EmailComposeView, EmailComposeLoadingState } from "@/components/email-compose-view";
 import type { EmailComposeData } from "@/components/email-compose-view";
 import { CTABanner } from "@/components/cta-banner";
+import { ExplainerSection } from "@/components/explainer-section";
 
 // Disable static optimization for this page
 export const dynamic = "force-dynamic";
@@ -555,7 +556,7 @@ export default function Page() {
           {/* Branded header */}
           <header className="branded-header">
             <div>
-              <div className="branded-header-title">Agent Spec UI</div>
+              <div className="branded-header-title">Portable Agents with Generative UI</div>
               <div className="branded-header-subtitle">
                 Built with Agent Spec, CopilotKit AG-UI, and A2UI
               </div>
@@ -583,6 +584,9 @@ export default function Page() {
               <Chat isCanvasMode={isCanvasMode} hasCanvasContent={canvas.content !== null} onCanvasUpdate={handleCanvasUpdate} onShowChat={handleShowChat} onShowCanvas={handleShowCanvas} />
             </div>
           </div>
+
+          {/* Explainer cards — only in chat-only mode */}
+          {!isCanvasMode && <ExplainerSection />}
         </div>
       </div>
     </CopilotKitProvider>

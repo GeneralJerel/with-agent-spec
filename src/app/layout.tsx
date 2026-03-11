@@ -4,15 +4,15 @@ import "./globals.css";
 import "./style.css";
 
 export const metadata: Metadata = {
-  title: "Scheduling Assistant Demo",
+  title: "Portable Agents with Generative UI",
   description: "Built with Agent Spec, CopilotKit, and A2UI — manage your calendar, inbox, and emails with conversational AI",
   openGraph: {
-    title: "Scheduling Assistant Demo",
+    title: "Portable Agents with Generative UI",
     description: "Built with Agent Spec, CopilotKit, and A2UI",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Scheduling Assistant Demo",
+    title: "Portable Agents with Generative UI",
     description: "Built with Agent Spec, CopilotKit, and A2UI",
   },
   icons: {

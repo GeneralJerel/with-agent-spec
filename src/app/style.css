@@ -1013,6 +1013,99 @@
   }
 }
 
+/* === Explainer Section (below input pill) === */
+
+.explainer-section {
+  flex-shrink: 0;
+  padding: 20px 24px 28px;
+  text-align: center;
+  border-top: 1px solid var(--color-border-glass);
+}
+
+.explainer-headline {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  max-width: 480px;
+  margin: 0 auto 20px;
+}
+
+.explainer-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.explainer-card {
+  background: var(--surface-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 20px 16px;
+  text-align: left;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.explainer-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+.explainer-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.explainer-card-icon--lilac {
+  background: rgba(190, 194, 255, 0.2);
+  color: var(--accent-indigo);
+}
+
+.explainer-card-icon--mixed {
+  background: linear-gradient(135deg, rgba(190, 194, 255, 0.15), rgba(133, 224, 206, 0.15));
+  color: var(--accent-indigo);
+}
+
+.explainer-card-icon--mint {
+  background: rgba(133, 224, 206, 0.2);
+  color: var(--accent-emerald);
+}
+
+.explainer-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.explainer-card-desc {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .explainer-cards {
+    grid-template-columns: 1fr;
+    max-width: 320px;
+  }
+
+  .explainer-section {
+    padding: 16px 16px 24px;
+  }
+}
+
 /* === Glassmorphism Panel Overlays === */
 
 .layout-split .canvas-panel {
