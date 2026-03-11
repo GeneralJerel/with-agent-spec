@@ -20,6 +20,7 @@ import { InboxView, InboxLoadingState } from "@/components/inbox-view";
 import type { Email } from "@/components/inbox-view";
 import { EmailComposeView, EmailComposeLoadingState } from "@/components/email-compose-view";
 import type { EmailComposeData } from "@/components/email-compose-view";
+import { CTABanner } from "@/components/cta-banner";
 
 // Disable static optimization for this page
 export const dynamic = "force-dynamic";
@@ -554,9 +555,9 @@ export default function Page() {
           {/* Branded header */}
           <header className="branded-header">
             <div>
-              <div className="branded-header-title">Agent Spec x CopilotKit</div>
+              <div className="branded-header-title">Scheduling Assistant Demo</div>
               <div className="branded-header-subtitle">
-                AI scheduling assistant powered by CopilotKit and Agent Spec
+                Built with Agent Spec, CopilotKit, and A2UI
               </div>
             </div>
             <div className="branded-header-badge">
@@ -566,6 +567,9 @@ export default function Page() {
               Demo
             </div>
           </header>
+
+          {/* CTA Banner */}
+          <CTABanner />
 
           {/* App layout */}
           <div className={`a2ui-chat-container flex flex-1 min-h-0 overflow-hidden ${isCanvasMode ? "layout-split" : "layout-chat"}`}>
