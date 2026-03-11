@@ -20,14 +20,14 @@ export function CTABanner() {
         </div>
         <div className="cta-actions">
           <a href={DOCS_URL} target="_blank" rel="noopener noreferrer" className="cta-btn cta-btn--primary">
-            Read the Docs
+            Get Started
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M7 17L17 7" />
               <path d="M7 7h10v10" />
             </svg>
           </a>
           <a href={BLOG_URL} target="_blank" rel="noopener noreferrer" className="cta-btn cta-btn--secondary">
-            Read the Blog
+            Read More
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M7 17L17 7" />
               <path d="M7 7h10v10" />
