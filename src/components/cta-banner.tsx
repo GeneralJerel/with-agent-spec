@@ -1,7 +1,7 @@
 "use client";
 
 const DOCS_URL = "https://docs.copilotkit.ai/agent-spec";
-const BLOG_URL = "#"; // placeholder — replace with actual blog link
+const BLOG_URL = "https://go.copilotkit.ai/oracle-a2ui-blog";
 
 export function CTABanner() {
   return (
